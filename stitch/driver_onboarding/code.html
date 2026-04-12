@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface-container-low": "#0f1c2e",
+              "surface-container": "#132032",
+              "on-secondary-container": "#9fbae6",
+              "surface-bright": "#2d3a4d",
+              "surface": "#061425",
+              "on-secondary-fixed": "#001c3b",
+              "on-primary": "#3c2f00",
+              "background": "#061425",
+              "primary-fixed-dim": "#e9c349",
+              "outline": "#99907c",
+              "on-primary-fixed": "#241a00",
+              "tertiary-fixed-dim": "#b4c5ff",
+              "on-secondary-fixed-variant": "#2d486d",
+              "secondary-fixed-dim": "#adc8f5",
+              "tertiary-container": "#97b0ff",
+              "on-primary-fixed-variant": "#574500",
+              "tertiary": "#bfcdff",
+              "primary": "#f2ca50",
+              "inverse-primary": "#735c00",
+              "surface-container-highest": "#293548",
+              "secondary-container": "#2f4a70",
+              "on-tertiary-fixed": "#00174b",
+              "outline-variant": "#4d4635",
+              "on-secondary": "#133155",
+              "error": "#ffb4ab",
+              "tertiary-fixed": "#dbe1ff",
+              "surface-container-high": "#1e2a3d",
+              "on-primary-container": "#554300",
+              "inverse-surface": "#d6e3fc",
+              "secondary-fixed": "#d5e3ff",
+              "primary-fixed": "#ffe088",
+              "on-error": "#690005",
+              "secondary": "#adc8f5",
+              "on-background": "#d6e3fc",
+              "on-tertiary": "#082b72",
+              "on-tertiary-fixed-variant": "#27438a",
+              "surface-variant": "#293548",
+              "on-error-container": "#ffdad6",
+              "surface-container-lowest": "#020e20",
+              "error-container": "#93000a",
+              "on-surface": "#d6e3fc",
+              "on-surface-variant": "#d0c5af",
+              "surface-dim": "#061425",
+              "primary-container": "#d4af37",
+              "surface-tint": "#e9c349",
+              "on-tertiary-container": "#254188",
+              "inverse-on-surface": "#243144"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+        }
+        .glass-card {
+            background: rgba(41, 53, 72, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface font-body min-h-[844px] w-[390px] mx-auto overflow-x-hidden relative">
+<!-- TopAppBar (Supressed Navigation but kept for branding as per Shell Visibility Rule - Top level journey) -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-6 h-16 bg-[#061425] bg-gradient-to-b from-[#0F1C2E] to-transparent">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[#F2CA50]">arrow_back</span>
+<h1 class="text-[#F2CA50] font-headline font-bold text-xl tracking-wider">SaaradhiGO</h1>
+</div>
+<div class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center">
+<span class="material-symbols-outlined text-xs text-[#D4AF37]">help_outline</span>
+</div>
+</header>
+<main class="pt-24 pb-32 px-6">
+<!-- Progress Stepper -->
+<section class="mb-10">
+<div class="flex items-center justify-between mb-4">
+<h2 class="font-headline font-semibold text-lg text-[#F2CA50]">Registration</h2>
+<span class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">Step 2 of 4</span>
+</div>
+<div class="flex gap-2 h-1.5 w-full">
+<div class="flex-1 bg-primary rounded-full"></div>
+<div class="flex-1 bg-primary rounded-full"></div>
+<div class="flex-1 bg-surface-container-highest rounded-full"></div>
+<div class="flex-1 bg-surface-container-highest rounded-full"></div>
+</div>
+</section>
+<!-- Onboarding Introduction -->
+<header class="mb-8">
+<h3 class="font-headline font-extrabold text-2xl mb-2 text-on-surface">Upload Documents</h3>
+<p class="text-on-surface-variant text-sm leading-relaxed">Please provide clear photos of your original documents to verify your account.</p>
+</header>
+<!-- Document List (Premium Card Layout) -->
+<div class="space-y-4">
+<!-- Aadhaar Card -->
+<div class="glass-card rounded-xl p-5 flex items-center justify-between group active:scale-[0.98] transition-transform duration-200">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-xl bg-surface-container-low flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" data-icon="badge">badge</span>
+</div>
+<div>
+<h4 class="font-headline font-semibold text-on-surface">Aadhaar Card</h4>
+<p class="text-xs text-on-surface-variant">Front and Back</p>
+</div>
+</div>
+<button class="bg-surface-bright text-primary p-2 rounded-lg flex items-center gap-2 hover:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined text-sm" data-icon="upload">upload</span>
+<span class="font-label text-[10px] font-bold uppercase tracking-tighter">Upload</span>
+</button>
+</div>
+<!-- Driving License -->
+<div class="glass-card rounded-xl p-5 flex items-center justify-between group active:scale-[0.98] transition-transform duration-200">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-xl bg-surface-container-low flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" data-icon="license">license</span>
+</div>
+<div>
+<h4 class="font-headline font-semibold text-on-surface">Driving License</h4>
+<p class="text-xs text-on-surface-variant">Valid commercial DL</p>
+</div>
+</div>
+<button class="bg-surface-bright text-primary p-2 rounded-lg flex items-center gap-2 hover:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined text-sm" data-icon="upload">upload</span>
+<span class="font-label text-[10px] font-bold uppercase tracking-tighter">Upload</span>
+</button>
+</div>
+<!-- Vehicle RC -->
+<div class="glass-card rounded-xl p-5 flex items-center justify-between group active:scale-[0.98] transition-transform duration-200 border-l-4 border-primary">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-xl bg-surface-container-low flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" data-icon="car_repair">car_repair</span>
+</div>
+<div>
+<h4 class="font-headline font-semibold text-on-surface">Vehicle RC</h4>
+<p class="text-xs text-on-surface-variant">Registration Certificate</p>
+</div>
+</div>
+<!-- Simulating a state where one might be partially uploaded or focused -->
+<button class="bg-primary text-on-primary p-2 rounded-lg flex items-center gap-2 shadow-lg shadow-primary/10">
+<span class="material-symbols-outlined text-sm" data-icon="add_a_photo">add_a_photo</span>
+<span class="font-label text-[10px] font-bold uppercase tracking-tighter">Snap</span>
+</button>
+</div>
+<!-- PAN Card (Additional Example) -->
+<div class="glass-card rounded-xl p-5 flex items-center justify-between group active:scale-[0.98] transition-transform duration-200">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-xl bg-surface-container-low flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" data-icon="credit_card">credit_card</span>
+</div>
+<div>
+<h4 class="font-headline font-semibold text-on-surface">PAN Card</h4>
+<p class="text-xs text-on-surface-variant">Individual PAN</p>
+</div>
+</div>
+<button class="bg-surface-bright text-primary p-2 rounded-lg flex items-center gap-2 hover:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined text-sm" data-icon="upload">upload</span>
+<span class="font-label text-[10px] font-bold uppercase tracking-tighter">Upload</span>
+</button>
+</div>
+</div>
+<!-- Compliance Note -->
+<div class="mt-8 flex gap-3 p-4 bg-surface-container-low rounded-xl">
+<span class="material-symbols-outlined text-on-secondary-container" data-icon="info">info</span>
+<p class="text-[11px] text-on-secondary-container leading-relaxed font-body">
+                By submitting, you agree to our <span class="text-primary underline">Privacy Policy</span> regarding data handling for background verification.
+            </p>
+</div>
+</main>
+<!-- Fixed Bottom Action Area -->
+<footer class="fixed bottom-0 w-full px-6 pb-8 pt-4 bg-gradient-to-t from-surface via-surface to-transparent">
+<button class="w-full bg-gradient-to-r from-primary to-primary-container text-on-primary py-4 rounded-xl font-headline font-bold text-base shadow-[0_4px_48px_0_rgba(242,202,80,0.15)] active:scale-95 transition-all duration-150">
+            Submit for Review
+        </button>
+</footer>
+<!-- Visual Polish: Map Backdrop Glow -->
+<div class="fixed -bottom-20 -right-20 w-64 h-64 bg-primary/5 rounded-full blur-[100px] pointer-events-none z-0"></div>
+<div class="fixed top-1/2 -left-20 w-48 h-48 bg-secondary/5 rounded-full blur-[80px] pointer-events-none z-0"></div>
+</body></html>

@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SaaradhiGO - Ride Request</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&amp;family=Inter:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface-container-low": "#0f1c2e",
+              "surface-container": "#132032",
+              "on-secondary-container": "#9fbae6",
+              "surface-bright": "#2d3a4d",
+              "surface": "#061425",
+              "on-secondary-fixed": "#001c3b",
+              "on-primary": "#3c2f00",
+              "background": "#061425",
+              "primary-fixed-dim": "#e9c349",
+              "outline": "#99907c",
+              "on-primary-fixed": "#241a00",
+              "tertiary-fixed-dim": "#b4c5ff",
+              "on-secondary-fixed-variant": "#2d486d",
+              "secondary-fixed-dim": "#adc8f5",
+              "tertiary-container": "#97b0ff",
+              "on-primary-fixed-variant": "#574500",
+              "tertiary": "#bfcdff",
+              "primary": "#f2ca50",
+              "inverse-primary": "#735c00",
+              "surface-container-highest": "#293548",
+              "secondary-container": "#2f4a70",
+              "on-tertiary-fixed": "#00174b",
+              "outline-variant": "#4d4635",
+              "on-secondary": "#133155",
+              "error": "#ffb4ab",
+              "tertiary-fixed": "#dbe1ff",
+              "surface-container-high": "#1e2a3d",
+              "on-primary-container": "#554300",
+              "inverse-surface": "#d6e3fc",
+              "secondary-fixed": "#d5e3ff",
+              "primary-fixed": "#ffe088",
+              "on-error": "#690005",
+              "secondary": "#adc8f5",
+              "on-background": "#d6e3fc",
+              "on-tertiary": "#082b72",
+              "on-tertiary-fixed-variant": "#27438a",
+              "surface-variant": "#293548",
+              "on-error-container": "#ffdad6",
+              "surface-container-lowest": "#020e20",
+              "error-container": "#93000a",
+              "on-surface": "#d6e3fc",
+              "on-surface-variant": "#d0c5af",
+              "surface-dim": "#061425",
+              "primary-container": "#d4af37",
+              "surface-tint": "#e9c349",
+              "on-tertiary-container": "#254188",
+              "inverse-on-surface": "#243144"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "2xl": "1rem", "3xl": "1.5rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+            text-transform: none;
+            letter-spacing: normal;
+            word-wrap: normal;
+            white-space: nowrap;
+            direction: ltr;
+        }
+        .glass-panel {
+            background: rgba(41, 53, 72, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        .countdown-svg {
+            transform: rotate(-90deg);
+        }
+        .countdown-circle {
+            stroke-dasharray: 283;
+            stroke-dashoffset: 70; /* Simulating partial progress */
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface font-body selection:bg-primary/30">
+<!-- Map Background -->
+<div class="fixed inset-0 z-0">
+<img alt="Dark themed navigation map of Hyderabad" class="w-full h-full object-cover opacity-60 grayscale brightness-[0.4]" data-location="Hitech City, Hyderabad" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCIPbfcauRo-uj9cTGsMM9X67yntaAKvzNjeBS7ixp-3haiGlKN_HMibwou3c55axE_zpsljJTBv2J6XOhZ67iM0LxVDkRo-kMy6YgysOSLBYadeKqoqlyPqX9DEqPBB4_CYVaGiMJ-LWE1Z75ht3NFBYeHuymKLgncvDXV27buLN7D3t0uqaqD8eFHFX68SbpUQK-X_3bqybahj8ArE66i4GskyszeiSRBpSbcugJhn17n1YX9xU_8O-5TP0kSSSs4eItTAGK6dPg"/>
+<!-- Map Markers Simulation -->
+<div class="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2">
+<div class="relative flex items-center justify-center">
+<div class="absolute w-12 h-12 bg-primary/20 rounded-full animate-ping"></div>
+<div class="relative bg-primary text-on-primary w-8 h-8 rounded-full flex items-center justify-center shadow-lg shadow-primary/40">
+<span class="material-symbols-outlined text-xl" style="font-variation-settings: 'FILL' 1;">person_pin_circle</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Top App Bar (Shared Component) -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-6 h-16 bg-gradient-to-b from-[#0F1C2E] to-transparent">
+<div class="flex items-center gap-4">
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-[#1E2A3D] transition-colors">
+<span class="material-symbols-outlined text-[#D4AF37]">menu</span>
+</button>
+<h1 class="text-[#F2CA50] font-bold text-xl tracking-wider font-headline">SaaradhiGO</h1>
+</div>
+<div class="w-10 h-10 rounded-full bg-surface-container-highest border border-primary/20 overflow-hidden">
+<img alt="Driver Profile Photo" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDj__LReBx5_2BjzGpHuSgFrTC7jSixbgzlrOorC1wjUMH4Xmhs6z7f3QJGlnDkqCSm6xXo7d-iKZEJMDhO_aaqwNB5mxrlqqSL_iK7btfYDqThYTcqn5KqzIsgxs5fgkK6gPOfgdLfgzXoxs9lwoKera7l62_Qp_xcRmijbgssVHPwPJ5LDkBF_J0y-cL6QOYaiYqrUJuLw5B_c50PdzZ1QwOczdvwBSve2xa74Kwg8vzmadmwMtGDbTNw5yaTFX6uKCZkWcyEmzQ"/>
+</div>
+</header>
+<!-- Main Content Area / Ride Request Overlay -->
+<main class="relative z-10 flex items-end justify-center min-h-screen">
+<!-- Ride Request Bottom Sheet -->
+<div class="w-full max-w-[390px] glass-panel rounded-t-3xl shadow-[0_-8px_32px_rgba(0,0,0,0.5)] border-t border-outline-variant/10 px-6 pt-2 pb-8">
+<!-- Pull Handle -->
+<div class="w-12 h-1 bg-on-surface/20 rounded-full mx-auto mb-6"></div>
+<!-- Request Header -->
+<div class="flex justify-between items-start mb-6">
+<div>
+<span class="text-primary font-label text-[10px] uppercase tracking-[0.2em] mb-1 block">New Request Incoming</span>
+<h2 class="text-on-surface font-headline font-bold text-2xl tracking-tight">Ride Request</h2>
+</div>
+<div class="text-right">
+<div class="text-primary font-headline font-extrabold text-2xl tracking-tighter">₹184.00</div>
+<div class="text-on-surface-variant font-label text-[10px] uppercase">Est. Earnings</div>
+</div>
+</div>
+<!-- Location Info Card -->
+<div class="bg-surface-container-low rounded-2xl p-4 mb-6 relative overflow-hidden">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-primary"></div>
+<div class="flex items-start gap-4">
+<div class="flex flex-col items-center gap-1 mt-1">
+<span class="material-symbols-outlined text-primary text-xl" style="font-variation-settings: 'FILL' 1;">near_me</span>
+<div class="w-0.5 h-8 bg-outline-variant/30"></div>
+<span class="material-symbols-outlined text-on-surface-variant text-xl">location_on</span>
+</div>
+<div class="flex-1 space-y-4">
+<div>
+<div class="flex justify-between items-center mb-1">
+<span class="text-on-surface-variant font-label text-[10px] uppercase tracking-widest">Pickup</span>
+<span class="text-primary font-bold text-xs">2.4 km away</span>
+</div>
+<div class="text-on-surface font-headline font-semibold text-lg leading-tight">Hitech City Metro Station</div>
+</div>
+<div>
+<span class="text-on-surface-variant font-label text-[10px] uppercase tracking-widest mb-1 block">Drop-off</span>
+<div class="text-on-surface font-headline font-semibold text-lg leading-tight">Inorbit Mall, Madhapur</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Stats & Details -->
+<div class="grid grid-cols-2 gap-4 mb-8">
+<div class="bg-surface-container-high/40 rounded-xl p-3 flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-secondary-container/30 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-lg">schedule</span>
+</div>
+<div>
+<div class="text-on-surface font-bold text-sm">8 min</div>
+<div class="text-on-surface-variant text-[10px]">To Pickup</div>
+</div>
+</div>
+<div class="bg-surface-container-high/40 rounded-xl p-3 flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-secondary-container/30 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-lg">star</span>
+</div>
+<div>
+<div class="text-on-surface font-bold text-sm">4.9</div>
+<div class="text-on-surface-variant text-[10px]">User Rating</div>
+</div>
+</div>
+</div>
+<!-- Actions -->
+<div class="flex gap-4 items-center">
+<button class="flex-1 h-16 rounded-2xl border border-outline-variant/30 text-on-surface font-headline font-bold uppercase tracking-widest text-sm hover:bg-surface-bright transition-colors active:scale-95 duration-150">
+                    REJECT
+                </button>
+<!-- Accept Button with Animated Timer Logic -->
+<div class="relative w-32 h-32 flex items-center justify-center -mt-8">
+<svg class="countdown-svg absolute w-full h-full" viewbox="0 0 100 100">
+<circle class="text-surface-container-highest" cx="50" cy="50" fill="transparent" r="45" stroke="currentColor" stroke-width="4"></circle>
+<circle class="text-primary countdown-circle" cx="50" cy="50" fill="transparent" r="45" stroke="currentColor" stroke-linecap="round" stroke-width="4"></circle>
+</svg>
+<button class="relative z-10 w-24 h-24 rounded-full bg-gradient-to-br from-primary to-primary-container text-on-primary shadow-xl shadow-primary/20 flex flex-col items-center justify-center active:scale-95 transition-transform duration-200">
+<span class="text-xs font-bold uppercase tracking-tighter mb-1">ACCEPT</span>
+<span class="text-2xl font-black font-headline">12s</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Nav Bar (Shared Component - Hidden for focused task) -->
+<!-- Removed for focused ride request task per "Shell Visibility & Relevance" rule -->
+</body></html>

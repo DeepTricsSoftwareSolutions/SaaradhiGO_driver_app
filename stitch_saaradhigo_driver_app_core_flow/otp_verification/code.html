@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>OTP Verification - SaaradhiGO</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface-container-low": "#0f1c2e",
+              "surface-container": "#132032",
+              "on-secondary-container": "#9fbae6",
+              "surface-bright": "#2d3a4d",
+              "surface": "#061425",
+              "on-secondary-fixed": "#001c3b",
+              "on-primary": "#3c2f00",
+              "background": "#061425",
+              "primary-fixed-dim": "#e9c349",
+              "outline": "#99907c",
+              "on-primary-fixed": "#241a00",
+              "tertiary-fixed-dim": "#b4c5ff",
+              "on-secondary-fixed-variant": "#2d486d",
+              "secondary-fixed-dim": "#adc8f5",
+              "tertiary-container": "#97b0ff",
+              "on-primary-fixed-variant": "#574500",
+              "tertiary": "#bfcdff",
+              "primary": "#f2ca50",
+              "inverse-primary": "#735c00",
+              "surface-container-highest": "#293548",
+              "secondary-container": "#2f4a70",
+              "on-tertiary-fixed": "#00174b",
+              "outline-variant": "#4d4635",
+              "on-secondary": "#133155",
+              "error": "#ffb4ab",
+              "tertiary-fixed": "#dbe1ff",
+              "surface-container-high": "#1e2a3d",
+              "on-primary-container": "#554300",
+              "inverse-surface": "#d6e3fc",
+              "secondary-fixed": "#d5e3ff",
+              "primary-fixed": "#ffe088",
+              "on-error": "#690005",
+              "secondary": "#adc8f5",
+              "on-background": "#d6e3fc",
+              "on-tertiary": "#082b72",
+              "on-tertiary-fixed-variant": "#27438a",
+              "surface-variant": "#293548",
+              "on-error-container": "#ffdad6",
+              "surface-container-lowest": "#020e20",
+              "error-container": "#93000a",
+              "on-surface": "#d6e3fc",
+              "on-surface-variant": "#d0c5af",
+              "surface-dim": "#061425",
+              "primary-container": "#d4af37",
+              "surface-tint": "#e9c349",
+              "on-tertiary-container": "#254188",
+              "inverse-on-surface": "#243144"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .glass-panel {
+        background: rgba(41, 53, 72, 0.6);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+      }
+      .otp-input:focus {
+        border: none;
+        outline: 2px solid #f2ca50;
+        box-shadow: 0 0 15px rgba(242, 202, 80, 0.3);
+      }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface font-body text-on-surface min-h-screen selection:bg-primary selection:text-on-primary overflow-hidden">
+<!-- Back Button / Header -->
+<header class="fixed top-0 w-full z-50 flex items-center px-6 h-16 bg-gradient-to-b from-surface-container-low to-transparent">
+<button class="w-10 h-10 flex items-center justify-center rounded-xl bg-surface-container-high text-on-surface hover:bg-surface-bright transition-colors active:scale-95 duration-150">
+<span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
+</button>
+</header>
+<main class="flex flex-col items-center justify-center min-h-screen w-full max-w-[390px] mx-auto px-6 py-20 relative">
+<!-- Background Glow Orbs -->
+<div class="absolute top-1/4 -left-20 w-64 h-64 bg-primary/10 rounded-full blur-[100px] pointer-events-none"></div>
+<div class="absolute bottom-1/4 -right-20 w-64 h-64 bg-secondary/10 rounded-full blur-[100px] pointer-events-none"></div>
+<!-- Branding Section -->
+<div class="text-center mb-10 w-full">
+<h1 class="font-headline font-extrabold text-3xl text-primary tracking-wider mb-2">SaaradhiGO</h1>
+<div class="inline-block px-3 py-1 bg-surface-container-high rounded-full mb-6">
+<span class="text-[10px] font-bold uppercase tracking-widest text-primary">Verification Required</span>
+</div>
+<h2 class="font-headline font-semibold text-2xl text-on-surface mb-3">Check your phone</h2>
+<p class="text-on-surface-variant font-medium">Enter the code sent to your phone</p>
+<p class="text-primary/80 font-bold mt-1 text-sm">+91 ••••• ••844</p>
+</div>
+<!-- OTP Input Grid -->
+<div class="grid grid-cols-6 gap-2 w-full mb-10">
+<input class="otp-input w-full h-14 bg-surface-container-high border-none rounded-xl text-center text-xl font-bold text-primary focus:ring-0 transition-all" maxlength="1" type="text" value="4"/>
+<input class="otp-input w-full h-14 bg-surface-container-high border-none rounded-xl text-center text-xl font-bold text-primary focus:ring-0 transition-all" maxlength="1" type="text" value="9"/>
+<input class="otp-input w-full h-14 bg-surface-container-high border-none rounded-xl text-center text-xl font-bold text-primary focus:ring-0 transition-all" maxlength="1" type="text" value="2"/>
+<input class="otp-input w-full h-14 bg-surface-container-high border-none rounded-xl text-center text-xl font-bold text-primary focus:ring-0 transition-all" maxlength="1" placeholder="•" type="text"/>
+<input class="otp-input w-full h-14 bg-surface-container-high border-none rounded-xl text-center text-xl font-bold text-primary focus:ring-0 transition-all" maxlength="1" placeholder="•" type="text"/>
+<input class="otp-input w-full h-14 bg-surface-container-high border-none rounded-xl text-center text-xl font-bold text-primary focus:ring-0 transition-all" maxlength="1" placeholder="•" type="text"/>
+</div>
+<!-- Timer & Resend -->
+<div class="flex flex-col items-center gap-4 mb-12">
+<div class="flex items-center gap-2 text-on-surface-variant text-sm">
+<span class="material-symbols-outlined text-base" data-icon="schedule">schedule</span>
+<span>Resend code in <span class="text-primary font-bold">00:48</span></span>
+</div>
+<button class="text-on-secondary-container font-bold text-xs uppercase tracking-widest opacity-50 cursor-not-allowed">
+                Resend SMS
+            </button>
+</div>
+<!-- Action Button -->
+<button class="group relative w-full h-14 bg-gradient-to-r from-primary to-primary-container rounded-xl flex items-center justify-center overflow-hidden active:scale-[0.97] transition-transform duration-200">
+<span class="relative z-10 font-bold text-on-primary text-lg flex items-center gap-2">
+                Verify &amp; Proceed
+                <span class="material-symbols-outlined font-bold" data-icon="arrow_forward">arrow_forward</span>
+</span>
+<div class="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+</button>
+<!-- Footer Help -->
+<div class="mt-8 flex items-center gap-2 text-on-surface-variant/60 text-xs">
+<span class="material-symbols-outlined text-sm" data-icon="help_outline">help_outline</span>
+<span>Having trouble logging in? Contact Support</span>
+</div>
+</main>
+<!-- Tactical Overlay for Mobile Feel -->
+<div class="fixed bottom-0 left-0 right-0 h-1 w-full bg-gradient-to-t from-primary/5 to-transparent pointer-events-none"></div>
+</body></html>

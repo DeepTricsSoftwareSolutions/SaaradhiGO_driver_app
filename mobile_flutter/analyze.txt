@@ -1,0 +1,13 @@
+Analyzing mobile_flutter...
+
+warning - lib\screens\dashboard_screen.dart:51:11 - The value of the local variable 'user' isn't used. Try removing the variable or using it. - unused_local_variable
+warning - lib\screens\otp_screen.dart:138:12 - The declaration '_isComplete' isn't referenced. Try removing the declaration of '_isComplete'. - unused_element
+warning - lib\screens\splash_screen.dart:323:31 - The value of the local variable 'opacity' isn't used. Try removing the variable or using it. - unused_local_variable
+warning - lib\screens\splash_screen.dart:428:15 - The value of the local variable 'opacity' isn't used. Try removing the variable or using it. - unused_local_variable
+   info - lib\services\api_service.dart:26:11 - Don't invoke 'print' in production code. Try using a logging framework. - avoid_print
+   info - lib\services\socket_service.dart:1:60 - The prefix 'IO' isn't a lower_case_with_underscores identifier. Try changing the prefix to follow the lower_case_with_underscores style. - library_prefixes
+   info - lib\services\socket_service.dart:16:7 - Don't invoke 'print' in production code. Try using a logging framework. - avoid_print
+   info - lib\services\socket_service.dart:20:32 - Don't invoke 'print' in production code. Try using a logging framework. - avoid_print
+   info - lib\services\socket_service.dart:21:36 - Don't invoke 'print' in production code. Try using a logging framework. - avoid_print
+
+9 issues found.

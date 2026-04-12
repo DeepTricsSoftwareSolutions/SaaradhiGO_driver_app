@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface-container-low": "#0f1c2e",
+              "surface-container": "#132032",
+              "on-secondary-container": "#9fbae6",
+              "surface-bright": "#2d3a4d",
+              "surface": "#061425",
+              "on-secondary-fixed": "#001c3b",
+              "on-primary": "#3c2f00",
+              "background": "#061425",
+              "primary-fixed-dim": "#e9c349",
+              "outline": "#99907c",
+              "on-primary-fixed": "#241a00",
+              "tertiary-fixed-dim": "#b4c5ff",
+              "on-secondary-fixed-variant": "#2d486d",
+              "secondary-fixed-dim": "#adc8f5",
+              "tertiary-container": "#97b0ff",
+              "on-primary-fixed-variant": "#574500",
+              "tertiary": "#bfcdff",
+              "primary": "#f2ca50",
+              "inverse-primary": "#735c00",
+              "surface-container-highest": "#293548",
+              "secondary-container": "#2f4a70",
+              "on-tertiary-fixed": "#00174b",
+              "outline-variant": "#4d4635",
+              "on-secondary": "#133155",
+              "error": "#ffb4ab",
+              "tertiary-fixed": "#dbe1ff",
+              "surface-container-high": "#1e2a3d",
+              "on-primary-container": "#554300",
+              "inverse-surface": "#d6e3fc",
+              "secondary-fixed": "#d5e3ff",
+              "primary-fixed": "#ffe088",
+              "on-error": "#690005",
+              "secondary": "#adc8f5",
+              "on-background": "#d6e3fc",
+              "on-tertiary": "#082b72",
+              "on-tertiary-fixed-variant": "#27438a",
+              "surface-variant": "#293548",
+              "on-error-container": "#ffdad6",
+              "surface-container-lowest": "#020e20",
+              "error-container": "#93000a",
+              "on-surface": "#d6e3fc",
+              "on-surface-variant": "#d0c5af",
+              "surface-dim": "#061425",
+              "primary-container": "#d4af37",
+              "surface-tint": "#e9c349",
+              "on-tertiary-container": "#254188",
+              "inverse-on-surface": "#243144"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .map-gradient-overlay {
+            background: linear-gradient(to bottom, rgba(6, 20, 37, 0.9) 0%, rgba(6, 20, 37, 0) 20%, rgba(6, 20, 37, 0) 80%, rgba(6, 20, 37, 1) 100%);
+        }
+        .glass-panel {
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface font-body selection:bg-primary/30">
+<!-- Top Navigation Bar -->
+<nav class="fixed top-0 w-full z-50 flex justify-between items-center px-6 h-16 bg-[#061425] bg-gradient-to-b from-[#0F1C2E] to-transparent">
+<div class="flex items-center gap-4">
+<button class="text-[#F2CA50] hover:bg-[#1E2A3D] transition-colors p-2 rounded-full active:scale-95 duration-150">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+</button>
+<h1 class="font-['Manrope'] font-semibold text-lg tracking-tight text-[#D4AF37]">Navigate to Pickup</h1>
+</div>
+<div class="flex items-center gap-3">
+<div class="bg-surface-container-high px-3 py-1 rounded-full border border-outline-variant/15 flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-green-500"></span>
+<span class="text-[10px] font-bold uppercase tracking-widest text-on-surface/70">Online</span>
+</div>
+<div class="w-10 h-10 rounded-full border-2 border-primary/30 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Driver Profile Avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDFE1s19nTcGkhh80nBiI7jtn-1vbS9aiMrDlk47xlAaAuBd3bG7vCECXSap5hnG74xIYey-h_g4CBhdE_4t2IdCb9c1ClajZcl7DW-X2QQWowEWWd2asAlZpOLOU_WolSlY61alQAuFYuWeQYePfQtbAwQ1wu_JAZzOEiFRR_wKDBb2AwZuqVu8Q61yKAEVIaUjkp9RrIAopQItL9oAafg6R4pXfVjlVgSuS8pp91QMz0OfC7VaM2eY1ew5ZZ4ivWjmZgbBREJVYM"/>
+</div>
+</div>
+</nav>
+<!-- Map Canvas (Background) -->
+<main class="relative w-full h-screen overflow-hidden">
+<div class="absolute inset-0 z-0">
+<div class="w-full h-full bg-surface-container-lowest relative overflow-hidden">
+<!-- Mock Map View -->
+<img class="w-full h-full object-cover opacity-40 grayscale contrast-125 brightness-50" data-alt="Dark stylized city map with navigation route" data-location="Hyderabad" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCmPCqqgjzzxNV2rXa0HXkI36EG45rYIUvA1vmRvrKG8AWpY_0wugPTkrrorgfo-NqEkQ39zZ4-dtCP9VdQZPfizRC0gUwhcdWPshqKIAdBOTi5VZwgHnXl8ZkT_Fk9aEGMk9-17lEVh9uPrkBv6pY7yxKJ5wdFw6xgkfxae-yScpxcvvbFaLXMDKWXFBUqYESifnX0md2A4cnEaxDPBX_csQ5b77K_q7qVDVZYdVurjHpvQYJKbbgY6IKoDSo-Ltni2JT26DSovJ0"/>
+<div class="absolute inset-0 map-gradient-overlay"></div>
+<!-- Navigation Route Line -->
+<svg class="absolute inset-0 w-full h-full z-10" fill="none" viewbox="0 0 400 800" xmlns="http://www.w3.org/2000/svg">
+<path d="M200 700C200 700 150 500 250 450C350 400 300 250 200 200" opacity="0.6" stroke="#2F4A70" stroke-linecap="round" stroke-linejoin="round" stroke-width="12"></path>
+<path d="M200 700C200 700 150 500 250 450C350 400 300 250 200 200" stroke="#F2CA50" stroke-linecap="round" stroke-linejoin="round" stroke-width="6"></path>
+<!-- User Location Indicator -->
+<circle cx="200" cy="700" fill="#F2CA50" r="10"></circle>
+<circle cx="200" cy="700" opacity="0.3" r="20" stroke="#F2CA50" stroke-width="2"></circle>
+<!-- Destination Pin -->
+<g transform="translate(185, 170)">
+<path d="M15 0C6.7 0 0 6.7 0 15C0 26.2 15 40 15 40C15 40 30 26.2 30 15C30 6.7 23.3 0 15 0ZM15 20.5C11.9 20.5 9.5 18.1 9.5 15C9.5 11.9 11.9 9.5 15 9.5C18.1 9.5 20.5 11.9 20.5 15C20.5 18.1 18.1 20.5 15 20.5Z" fill="#F2CA50"></path>
+</g>
+</svg>
+</div>
+</div>
+<!-- Google Maps-style Directions Overlay -->
+<div class="absolute top-20 left-4 right-4 z-40">
+<div class="glass-panel bg-surface-container-highest/80 rounded-2xl p-4 shadow-2xl border border-outline-variant/10 flex items-center gap-5">
+<div class="w-14 h-14 bg-primary rounded-xl flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined text-4xl" style="font-variation-settings: 'FILL' 1;">turn_right</span>
+</div>
+<div class="flex-1">
+<div class="text-on-surface/60 font-label text-[10px] uppercase tracking-widest mb-1">In 300 meters</div>
+<div class="text-on-surface font-headline font-bold text-lg leading-tight">Turn right onto High Tech City Main Rd</div>
+</div>
+</div>
+</div>
+<!-- Floating UI Elements -->
+<div class="absolute right-4 bottom-52 flex flex-col gap-3 z-30">
+<button class="w-12 h-12 rounded-xl bg-surface-container-high border border-outline-variant/15 flex items-center justify-center text-primary shadow-xl">
+<span class="material-symbols-outlined">my_location</span>
+</button>
+<button class="w-12 h-12 rounded-xl bg-surface-container-high border border-outline-variant/15 flex items-center justify-center text-primary shadow-xl">
+<span class="material-symbols-outlined">layers</span>
+</button>
+</div>
+<!-- Bottom Pickup Details Panel -->
+<div class="absolute bottom-0 left-0 right-0 z-40 px-4 pb-10">
+<div class="glass-panel bg-surface-container-low/95 rounded-t-[2.5rem] rounded-b-[1.5rem] shadow-[0_-8px_64px_rgba(0,0,0,0.5)] border-t border-outline-variant/5">
+<div class="w-12 h-1.5 bg-surface-bright rounded-full mx-auto mt-4 mb-6"></div>
+<div class="px-6 pb-6">
+<!-- Stats Grid -->
+<div class="flex items-end justify-between mb-8">
+<div>
+<div class="text-primary font-headline text-4xl font-extrabold tracking-tight">4 <span class="text-xl font-bold">mins</span></div>
+<div class="text-on-surface/40 font-label text-[10px] uppercase tracking-widest mt-1">Arrival Estimate</div>
+</div>
+<div class="text-right">
+<div class="text-on-surface font-headline text-2xl font-bold">1.2 <span class="text-lg">km</span></div>
+<div class="text-on-surface/40 font-label text-[10px] uppercase tracking-widest mt-1">Distance</div>
+</div>
+</div>
+<!-- Pickup User Info -->
+<div class="bg-surface-container-high/50 rounded-2xl p-4 flex items-center gap-4 mb-8">
+<div class="w-12 h-12 rounded-full overflow-hidden border border-primary/20">
+<img class="w-full h-full object-cover" data-alt="Customer Avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBaO85Gr2sX-5agRKDRZR0tT_a9708scKiC_RI_8y1MD1RVN655V-Lgb7q5Hr1BbIF34Nclrb7wRo_RsUBpOkFENBYPr-oTc1mvb3bw4lQMi62DSiVRVBdMDD2B6YADIvE9Rt4ES0FEwEDiX2YfxzMrijZ1TE8Ic_00S878nC9AFOSktVdktWRu5_yLwxrQHVfQecAohKJs_KBatEmoCsLB_57TuPww0hX20bsyNnMqaa-62Cr4CArbVAQ8ic59KxzE-dF0SpU_n-Y"/>
+</div>
+<div class="flex-1">
+<div class="text-on-surface font-bold text-base">Arjun Mehra</div>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-primary text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-on-surface/60 text-xs">4.9 • Payment: Cash</span>
+</div>
+</div>
+<div class="flex gap-2">
+<button class="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">call</span>
+</button>
+<button class="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">chat</span>
+</button>
+</div>
+</div>
+<!-- Main Action Button -->
+<button class="w-full h-16 bg-gradient-to-r from-primary to-primary-container rounded-2xl flex items-center justify-center gap-3 active:scale-[0.97] transition-transform duration-200 group">
+<span class="text-on-primary font-headline font-extrabold text-xl tracking-wider uppercase">Arrive</span>
+<span class="material-symbols-outlined text-on-primary group-hover:translate-x-1 transition-transform">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation Bar (Shell - Inactive during journey) -->
+<footer class="fixed bottom-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-3 bg-[#0F1C2E]/90 dark:bg-[#0F1C2E]/90 backdrop-blur-xl shadow-[0_-4px_48px_0_rgba(214,227,252,0.08)] rounded-t-[1.5rem] pointer-events-none opacity-50 grayscale">
+<div class="flex flex-col items-center justify-center text-[#F2CA50] bg-[#293548]/50 rounded-xl py-1 px-3">
+<span class="material-symbols-outlined" data-icon="explore">explore</span>
+<span class="font-['Inter'] font-bold text-[10px] uppercase tracking-widest mt-1">Home</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#D6E3FC]/40">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+<span class="font-['Inter'] font-bold text-[10px] uppercase tracking-widest mt-1">Earnings</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#D6E3FC]/40">
+<span class="material-symbols-outlined" data-icon="account_balance_wallet">account_balance_wallet</span>
+<span class="font-['Inter'] font-bold text-[10px] uppercase tracking-widest mt-1">Wallet</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#D6E3FC]/40">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-['Inter'] font-bold text-[10px] uppercase tracking-widest mt-1">Account</span>
+</div>
+</footer>
+</body></html>

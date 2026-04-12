@@ -1,0 +1,5 @@
+﻿
+   info - Use 'const' with the constructor to improve performance - lib\screens\live_trip_screen.dart:195:25 - prefer_const_constructors
+   info - Use 'const' literals as arguments to constructors of '@immutable' classes - lib\screens\live_trip_screen.dart:197:37 - prefer_const_literals_to_create_immutables
+   info - Use 'const' with the constructor to improve performance - lib\screens\live_trip_screen.dart:202:29 - prefer_const_constructors
+

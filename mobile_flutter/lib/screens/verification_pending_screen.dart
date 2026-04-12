@@ -1,0 +1,199 @@
+import 'package:flutter/material.dart';
+import 'package:animate_do/animate_do.dart';
+import '../core/theme.dart';
+import 'widgets/glass_card.dart';
+import 'widgets/driver_button.dart';
+
+class VerificationPendingScreen extends StatelessWidget {
+  const VerificationPendingScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: Stack(
+        children: [
+          // Background Gradient
+          Positioned.fill(
+            child: Container(
+              decoration: const BoxDecoration(
+                gradient: RadialGradient(
+                  center: Alignment.center,
+                  radius: 1.2,
+                  colors: [Color(0xFF0D0A00), Color(0xFF000000)],
+                ),
+              ),
+            ),
+          ),
+          
+          SafeArea(
+            child: Center(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // Animated Verified / Pending Icon
+                    FadeInDown(
+                      child: Pulse(
+                        infinite: true,
+                        child: Container(
+                          width: 140,
+                          height: 140,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF1A1500),
+                            shape: BoxShape.circle,
+                            border: Border.all(color: AppTheme.primaryGold.withValues(alpha: 0.1), width: 1.5),
+                            boxShadow: [
+                              BoxShadow(color: AppTheme.primaryGold.withValues(alpha: 0.3), blurRadius: 40, spreadRadius: 10),
+                            ],
+                          ),
+                          child: const Icon(Icons.hourglass_bottom, color: AppTheme.primaryGold, size: 60),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 48),
+                    
+                    // Title
+                    FadeInUp(
+                      child: const Text(
+                        "Verification Pending",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 32,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.white,
+                          letterSpacing: -1,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    
+                    // Subtitle
+                    FadeInUp(
+                      delay: const Duration(milliseconds: 200),
+                      child: const Text(
+                        "Your profile and documents are currently under review by our administration team. This process usually takes 24-48 hours.",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Color(0xFF94A3B8),
+                          fontSize: 16,
+                          height: 1.5,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 48),
+                    
+                    // Timeline Card
+                    FadeInUp(
+                      delay: const Duration(milliseconds: 400),
+                      child: GlassCard(
+                        padding: const EdgeInsets.all(24),
+                        child: Column(
+                          children: [
+                            _buildTimelineEvent(true, "Profile Created", "Personal and vehicle details added"),
+                            _buildTimelineEvent(true, "Documents Uploaded", "Aadhaar, DL, and RC submitted"),
+                            _buildTimelineEvent(false, "Admin Verification", "In progress", isLast: true),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 48),
+
+                    // Actions
+                    FadeInUp(
+                      delay: const Duration(milliseconds: 600),
+                      child: Column(
+                        children: [
+                          DriverButton(
+                            onPressed: () {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content: Text("Checking status..."),
+                                    backgroundColor: AppTheme.primaryGold),
+                              );
+                              Future.delayed(const Duration(seconds: 2), () {
+                                if (context.mounted) {
+                                  Navigator.pushReplacementNamed(context, '/dashboard');
+                                }
+                              });
+                            },
+                            child: const Text("CHECK STATUS AGAIN"),
+                          ),
+                          const SizedBox(height: 16),
+                          TextButton(
+                            onPressed: () {
+                              // Simulating approval for demo
+                              Navigator.pushReplacementNamed(context, '/dashboard');
+                            },
+                            child: const Text("FOR DEMO: SKIP TO DASHBOARD",
+                                style: TextStyle(color: Colors.white24, fontSize: 10)),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTimelineEvent(bool isDone, String title, String subtitle, {bool isLast = false}) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Column(
+          children: [
+            Container(
+              width: 24,
+              height: 24,
+              decoration: BoxDecoration(
+                color: isDone ? AppTheme.successGreen : Colors.white10,
+                shape: BoxShape.circle,
+                border: Border.all(color: isDone ? Colors.transparent : Colors.white24, width: 2),
+              ),
+              child: isDone ? const Icon(Icons.check, color: Colors.black, size: 16) : null,
+            ),
+            if (!isLast)
+              Container(
+                width: 2,
+                height: 40,
+                color: isDone ? AppTheme.successGreen : Colors.white12,
+                margin: const EdgeInsets.symmetric(vertical: 4),
+              ),
+          ],
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: TextStyle(
+                  color: isDone ? Colors.white : Colors.white54,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                subtitle,
+                style: const TextStyle(
+                  color: Color(0xFF94A3B8),
+                  fontSize: 12,
+                ),
+              ),
+              if (!isLast) const SizedBox(height: 24),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}

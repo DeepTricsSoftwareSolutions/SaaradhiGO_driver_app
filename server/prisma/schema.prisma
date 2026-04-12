@@ -1,0 +1,243 @@
+// SaaradhiGO Driver App - Production Prisma Schema
+// Learn more: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums ─────────────────────────────────────────────────────────────────
+
+enum DriverStatus {
+  PENDING      // New driver, not yet verified
+  VERIFYING    // Documents submitted, under review
+  APPROVED     // Verified and active
+  SUSPENDED    // Account suspended
+  REJECTED     // Verification rejected
+}
+
+enum RideStatus {
+  REQUESTED    // Rider created ride, searching for driver
+  ACCEPTED     // Driver accepted
+  ARRIVED      // Driver at pickup location
+  IN_PROGRESS  // Trip in progress
+  COMPLETED    // Trip done, fare collected
+  CANCELLED    // Cancelled by driver or rider
+}
+
+enum DocumentType {
+  LICENSE      // Driving license
+  RC           // Registration certificate
+  INSURANCE    // Vehicle insurance
+  AADHAR       // National ID
+  PROFILE_PHOTO
+}
+
+enum DocumentStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
+enum TransactionType {
+  CREDIT       // Earnings credited
+  DEBIT        // Commission or payout
+}
+
+enum PayoutStatus {
+  PENDING
+  PROCESSING
+  SUCCESS
+  FAILED
+}
+
+// ─── Models ────────────────────────────────────────────────────────────────
+
+model User {
+  id        String   @id @default(uuid())
+  phone     String   @unique
+  role      String   @default("DRIVER")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  driver    Driver?
+
+  @@map("users")
+}
+
+model Driver {
+  id              String       @id @default(uuid())
+  user            User         @relation(fields: [userId], references: [id])
+  userId          String       @unique @map("user_id")
+
+  // Profile
+  fullName        String?      @map("full_name")
+  profilePic      String?      @map("profile_pic") // S3 URL
+  dateOfBirth     DateTime?    @map("date_of_birth")
+  gender          String?
+
+  // Status & Location
+  status          DriverStatus @default(PENDING)
+  isOnline        Boolean      @default(false) @map("is_online")
+  isOnBreak       Boolean      @default(false) @map("is_on_break")
+  currentLat      Float?       @map("current_lat")
+  currentLng      Float?       @map("current_lng")
+  lastActiveTime  DateTime     @default(now()) @map("last_active_time")
+
+  // Vehicle
+  vehicleType     String?      @map("vehicle_type") // AUTO, SEDAN, SUV
+  vehicleModel    String?      @map("vehicle_model")
+  vehicleNumber   String?      @unique @map("vehicle_number")
+  vehicleColor    String?      @map("vehicle_color")
+  vehicleCapacity Int?         @map("vehicle_capacity")
+
+  // Performance
+  rating          Float        @default(5.0)
+  totalRides      Int          @default(0) @map("total_rides")
+  totalDistance   Float        @default(0.0) @map("total_distance_km") // km
+  cancellationRate Float       @default(0.0) @map("cancellation_rate")
+  acceptanceRate  Float        @default(100.0) @map("acceptance_rate")
+
+  // Finance
+  walletBalance   Float        @default(0.0) @map("wallet_balance")
+  totalEarnings   Float        @default(0.0) @map("total_earnings")
+  bankAccountNo   String?      @map("bank_account_no") // Encrypted in production
+  bankIFSC        String?      @map("bank_ifsc")
+  upiId           String?      @map("upi_id")
+  razorpayContactId     String? @map("razorpay_contact_id")
+  razorpayFundAccountId String? @map("razorpay_fund_account_id")
+
+  // Fraud detection
+  isFlagged       Boolean      @default(false) @map("is_flagged")
+  flagReason      String?      @map("flag_reason")
+
+  // Relations
+  documents       Document[]
+  rides           Ride[]
+  earnings        Earning[]
+  transactions    Transaction[]
+  payouts         Payout[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("drivers")
+}
+
+model Document {
+  id        String         @id @default(uuid())
+  driver    Driver         @relation(fields: [driverId], references: [id])
+  driverId  String         @map("driver_id")
+  type      DocumentType
+  url       String         // S3 URL
+  status    DocumentStatus @default(PENDING)
+  rejectionReason String?  @map("rejection_reason")
+  expiryDate DateTime?     @map("expiry_date")
+  createdAt DateTime       @default(now()) @map("created_at")
+  updatedAt DateTime       @updatedAt @map("updated_at")
+
+  @@map("documents")
+}
+
+model Ride {
+  id          String     @id @default(uuid())
+  driver      Driver?    @relation(fields: [driverId], references: [id])
+  driverId    String?    @map("driver_id")
+  riderId     String     @map("rider_id")
+
+  // Pickup
+  pickupLat   Float      @map("pickup_lat")
+  pickupLng   Float      @map("pickup_lng")
+  pickupAddr  String     @map("pickup_addr")
+
+  // Drop
+  dropLat     Float      @map("drop_lat")
+  dropLng     Float      @map("drop_lng")
+  dropAddr    String     @map("drop_addr")
+
+  // Trip Details
+  status      RideStatus @default(REQUESTED)
+  fare        Float
+  distanceKm  Float      @map("distance_km")
+  durationMin Int        @map("duration_min")
+  paymentMode String     @default("CASH") @map("payment_mode") // CASH, UPI, CARD
+  ridePin     String?    @map("ride_pin") // 4-digit PIN for trip start verification
+
+  // Times
+  requestedAt DateTime   @default(now()) @map("requested_at")
+  acceptedAt  DateTime?  @map("accepted_at")
+  arrivedAt   DateTime?  @map("arrived_at")
+  startTime   DateTime?  @map("start_time")
+  endTime     DateTime?  @map("end_time")
+
+  // Cancellation
+  cancelledBy String?    @map("cancelled_by") // 'DRIVER' or 'RIDER'
+  cancelReason String?   @map("cancel_reason")
+
+  // Ratings
+  riderRatingForDriver Float?    @map("rider_rating_for_driver") // Rider's rating of driver (1-5)
+  driverRatingForRider Float?    @map("driver_rating_for_rider") // Driver's rating of rider (1-5)
+
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime   @updatedAt @map("updated_at")
+
+  earning     Earning?
+
+  @@map("rides")
+}
+
+model Earning {
+  id        String   @id @default(uuid())
+  driver    Driver   @relation(fields: [driverId], references: [id])
+  driverId  String   @map("driver_id")
+  ride      Ride     @relation(fields: [rideId], references: [id])
+  rideId    String   @unique @map("ride_id")
+
+  grossFare   Float  @map("gross_fare")
+  commission  Float
+  amount      Float  // Net earnings to driver
+
+  date      DateTime @default(now())
+
+  @@map("earnings")
+}
+
+model Transaction {
+  id          String          @id @default(uuid())
+  driver      Driver          @relation(fields: [driverId], references: [id])
+  driverId    String          @map("driver_id")
+  amount      Float           // Positive = credit, Negative = debit
+  type        TransactionType
+  description String?
+  referenceId String?         @map("reference_id") // Ride ID or payout ID
+  createdAt   DateTime        @default(now()) @map("created_at")
+
+  @@map("transactions")
+}
+
+model Payout {
+  id          String       @id @default(uuid())
+  driver      Driver       @relation(fields: [driverId], references: [id])
+  driverId    String       @map("driver_id")
+  amount      Float
+  status      PayoutStatus @default(PENDING)
+
+  // Payout destination
+  upiId       String?      @map("upi_id")
+  bankAccount String?      @map("bank_account")
+
+  // Razorpay/Stripe payout details
+  gatewayPayoutId String?  @map("gateway_payout_id")
+  failureReason   String?  @map("failure_reason")
+
+  requestedAt DateTime @default(now()) @map("requested_at")
+  processedAt DateTime? @map("processed_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("payouts")
+}
