@@ -1,10 +1,8 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:provider/provider.dart';
 import 'package:animate_do/animate_do.dart';
-import '../../../features/ride/bloc/ride_bloc.dart';
-import '../../../features/ride/bloc/ride_event.dart';
-import '../../../features/ride/bloc/ride_state.dart';
+import '../../../features/ride/ride_provider.dart';
 import '../../../core/theme.dart';
 
 class RideRequestSheet extends StatefulWidget {
@@ -36,10 +34,10 @@ class _RideRequestSheetState extends State<RideRequestSheet> with SingleTickerPr
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<RideBloc, RideState>(
-      builder: (context, state) {
-        if (state is! RideStateUpdated || state.activeRide == null) return const SizedBox();
-        final request = state.activeRide!;
+    return Consumer<RideProvider>(
+      builder: (context, rideProvider, _) {
+        if (rideProvider.incomingRequest == null) return const SizedBox();
+        final request = rideProvider.incomingRequest!;
 
         return Align(
           alignment: Alignment.bottomCenter,
@@ -151,7 +149,7 @@ class _RideRequestSheetState extends State<RideRequestSheet> with SingleTickerPr
                                 Expanded(
                                   flex: 1,
                                   child: GestureDetector(
-                                    onTap: () => Navigator.pop(context),
+                                    onTap: () => context.read<RideProvider>().rejectRide(),
                                     child: Container(
                                       padding: const EdgeInsets.symmetric(vertical: 20),
                                       decoration: BoxDecoration(
@@ -174,15 +172,17 @@ class _RideRequestSheetState extends State<RideRequestSheet> with SingleTickerPr
                                     infinite: true,
                                     duration: const Duration(seconds: 2),
                                     child: GestureDetector(
-                                      onTap: () {
-                                        context.read<RideBloc>().add(RideAcceptRequested(request['id']));
-                                        Navigator.pushNamed(context, '/active-trip');
+                                      onTap: () async {
+                                        final success = await context.read<RideProvider>().acceptRide();
+                                        if (success && context.mounted) {
+                                          Navigator.pushNamed(context, '/active-trip');
+                                        }
                                       },
                                       child: Container(
                                         padding: const EdgeInsets.symmetric(vertical: 20),
                                         decoration: BoxDecoration(
-                                          gradient: LinearGradient(
-                                            colors: [AppTheme.primaryGold, const Color(0xFFCCAC00)],
+                                          gradient: const LinearGradient(
+                                            colors: [AppTheme.primaryGold, Color(0xFFCCAC00)],
                                           ),
                                           borderRadius: BorderRadius.circular(24),
                                           boxShadow: [

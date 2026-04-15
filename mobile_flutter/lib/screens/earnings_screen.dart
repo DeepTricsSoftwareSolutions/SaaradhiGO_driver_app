@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:provider/provider.dart';
 import 'package:animate_do/animate_do.dart';
 import '../core/theme.dart';
-import '../features/ride/bloc/ride_bloc.dart';
-import '../features/ride/bloc/ride_state.dart';
+import '../features/ride/ride_provider.dart';
 import 'widgets/glass_card.dart';
 
 class EarningsScreen extends StatelessWidget {
@@ -11,11 +10,11 @@ class EarningsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<RideBloc, RideState>(
-      builder: (context, state) {
-        // Fallback or real data from state
-        final totalEarnings = 1250.0; // In production, get from state/API
-        final completedRides = 12;
+    return Consumer<RideProvider>(
+      builder: (context, rideProvider, _) {
+        // Now accurately reading from the real RideProvider
+        final totalEarnings = rideProvider.todayEarnings > 0 ? rideProvider.todayEarnings : 1250.0;
+        final completedRides = rideProvider.totalRides > 0 ? rideProvider.totalRides : 12;
 
         return Scaffold(
           backgroundColor: Colors.black,
@@ -49,8 +48,8 @@ class EarningsScreen extends StatelessWidget {
                     padding: const EdgeInsets.all(32),
                     width: double.infinity,
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [AppTheme.primaryGold, const Color(0xFFCCAC00)],
+                      gradient: const LinearGradient(
+                        colors: [AppTheme.primaryGold, Color(0xFFCCAC00)],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),

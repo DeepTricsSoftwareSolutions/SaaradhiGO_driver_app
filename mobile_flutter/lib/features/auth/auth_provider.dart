@@ -173,19 +173,6 @@ class AuthProvider extends ChangeNotifier {
       'status': userData['status'] ?? 'PENDING',
     };
 
-  Future<void> _handleSuccessfulAuth({
-    required String token,
-    required Map<String, dynamic> userData,
-  }) async {
-    _token = token;
-    _user = {
-      'id': userData['id'] ?? 'user-id',
-      'driverId': userData['driverId'] ?? 'driver-id',
-      'phone': userData['phone'],
-      'fullName': userData['fullName'] ?? 'Driver',
-      'status': userData['status'] ?? 'PENDING',
-    };
-
     // Auto-trigger sync if we go through the Provider's internal login flow
     await finalizeRegistrationSync();
 

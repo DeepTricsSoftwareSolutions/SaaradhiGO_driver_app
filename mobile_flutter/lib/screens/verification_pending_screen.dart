@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:animate_do/animate_do.dart';
+import '../features/auth/auth_provider.dart';
 import '../core/theme.dart';
 import 'widgets/glass_card.dart';
 import 'widgets/driver_button.dart';
@@ -106,29 +108,30 @@ class VerificationPendingScreen extends StatelessWidget {
                       child: Column(
                         children: [
                           DriverButton(
-                            onPressed: () {
+                            onPressed: () async {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
-                                    content: Text("Checking status..."),
+                                    content: Text("Synchronizing with administration..."),
+                                    duration: Duration(seconds: 2),
                                     backgroundColor: AppTheme.primaryGold),
                               );
-                              Future.delayed(const Duration(seconds: 2), () {
-                                if (context.mounted) {
-                                  Navigator.pushReplacementNamed(context, '/dashboard');
+                              // Calls getProfile internally to refresh status
+                              await Provider.of<AuthProvider>(context, listen: false).tryAutoLogin();
+                              
+                              if (context.mounted) {
+                                final auth = Provider.of<AuthProvider>(context, listen: false);
+                                if (auth.user?['status'] != 'VERIFIED') {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                        content: Text("Account is still under review."),
+                                        backgroundColor: AppTheme.errorRed),
+                                  );
                                 }
-                              });
+                              }
                             },
                             child: const Text("CHECK STATUS AGAIN"),
                           ),
                           const SizedBox(height: 16),
-                          TextButton(
-                            onPressed: () {
-                              // Simulating approval for demo
-                              Navigator.pushReplacementNamed(context, '/dashboard');
-                            },
-                            child: const Text("FOR DEMO: SKIP TO DASHBOARD",
-                                style: TextStyle(color: Colors.white24, fontSize: 10)),
-                          ),
                         ],
                       ),
                     ),

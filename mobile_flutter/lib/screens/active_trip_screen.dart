@@ -1,11 +1,8 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:provider/provider.dart';
 import 'package:animate_do/animate_do.dart';
-import '../features/ride/bloc/ride_bloc.dart';
-import '../features/ride/bloc/ride_event.dart';
-import '../features/ride/bloc/ride_state.dart';
-import '../features/ride/ride_provider.dart'; // Still using RideStatus enum
+import '../features/ride/ride_provider.dart';
 import '../core/theme.dart';
 import 'widgets/saaradhi_map.dart';
 import 'widgets/driver_button.dart';
@@ -28,28 +25,31 @@ class _ActiveTripScreenState extends State<ActiveTripScreen> {
     super.dispose();
   }
 
-  void _handleStartRide(String rideId) {
+  void _handleStartRide(String rideId) async {
     if (_pinController.text.length != 4) {
       setState(() => _pinError = "Enter 4-digit PIN");
       return;
     }
-    context.read<RideBloc>().add(RideStartRequested(rideId, _pinController.text));
+    final success = await Provider.of<RideProvider>(context, listen: false).verifyPinAndStartRide(_pinController.text);
+    if (!success) {
+      setState(() => _pinError = "Invalid PIN or too far from pickup");
+    }
   }
 
-  void _handleEndRide(String rideId) {
-    context.read<RideBloc>().add(RideEndRequested(rideId));
+  void _handleEndRide(String rideId) async {
+    await Provider.of<RideProvider>(context, listen: false).completePayment('CASH');
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<RideBloc, RideState>(
-      builder: (context, state) {
-        if (state is! RideStateUpdated || state.activeRide == null) {
+    return Consumer<RideProvider>(
+      builder: (context, rideProvider, _) {
+        if (rideProvider.currentRide == null) {
           return const Scaffold(body: Center(child: CircularProgressIndicator()));
         }
 
-        final ride = state.activeRide!;
-        final status = state.status;
+        final ride = rideProvider.currentRide!;
+        final status = rideProvider.status;
 
         return Scaffold(
           backgroundColor: Colors.black,
@@ -149,7 +149,7 @@ class _ActiveTripScreenState extends State<ActiveTripScreen> {
                             const SizedBox(height: 4),
                             Row(
                               children: [
-                                Icon(Icons.star_rounded, color: AppTheme.primaryGold, size: 14),
+                                const Icon(Icons.star_rounded, color: AppTheme.primaryGold, size: 14),
                                 const SizedBox(width: 4),
                                 Text(ride['riderRating']?.toString() ?? "4.5", style: const TextStyle(color: Colors.white38, fontSize: 13, fontWeight: FontWeight.w700)),
                               ],

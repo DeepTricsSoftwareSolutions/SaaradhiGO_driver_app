@@ -1,17 +1,15 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:provider/provider.dart';
 import 'package:animate_do/animate_do.dart';
-import '../features/auth/bloc/auth_bloc.dart';
-import '../features/auth/bloc/auth_state.dart';
-import '../features/ride/bloc/ride_bloc.dart';
-import '../features/ride/bloc/ride_event.dart';
-import '../features/ride/bloc/ride_state.dart';
-import '../features/ride/ride_provider.dart'; // Still needed for RideStatus enum
+import '../features/auth/auth_provider.dart';
+import '../features/ride/ride_provider.dart';
 import '../core/theme.dart';
+import '../services/location_service.dart';
 import 'widgets/glass_card.dart';
 import 'widgets/driver_button.dart';
 import 'widgets/saaradhi_map.dart';
+import 'package:latlong2/latlong.dart';
 import 'widgets/ride_request_sheet.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -22,44 +20,41 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
-  bool _isOnline = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _checkInitialStatus();
-  }
-
-  void _checkInitialStatus() {
-    // Session is already checked by AuthBloc in main.dart
-  }
-
-  void _toggleOnline() {
-    setState(() => _isOnline = !_isOnline);
-    // In a full BLoC app, we'd have a specific OnlineStatusEvent
-    // For now, we'll just handle the UI toggle and location stream
+  void _toggleOnline() async {
+    final auth = Provider.of<AuthProvider>(context, listen: false);
+    final rideProvider = Provider.of<RideProvider>(context, listen: false);
+    final isNowOnline = !rideProvider.isOnline;
+    
+    if (isNowOnline && !rideProvider.isSocketConnected) {
+      rideProvider.initSocket(auth.user?['driverId'] ?? 'demo_driver', token: auth.token);
+    }
+    
+    await rideProvider.setOnlineStatus(isNowOnline);
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<AuthBloc, AuthState>(
-      builder: (context, authState) {
-        if (authState is! AuthAuthenticated) {
+    return Consumer2<AuthProvider, RideProvider>(
+      builder: (context, authProvider, rideProvider, _) {
+        if (authProvider.user == null) {
           return const Scaffold(body: Center(child: CircularProgressIndicator()));
         }
 
-        return BlocBuilder<RideBloc, RideState>(
-          builder: (context, rideState) {
-            final status = (rideState is RideStateUpdated) ? rideState.status : RideStatus.idle;
-            final user = authState.user;
+        final status = rideProvider.status;
+        final user = authProvider.user!;
 
-            return Scaffold(
-              backgroundColor: Colors.black,
-              body: Stack(
-                children: [
-                  // Background Map (Kept existing component for now)
-                  Positioned.fill(
-                    child: SaaradhiMap(isOnline: _isOnline),
+        return Scaffold(
+          backgroundColor: Colors.black,
+          body: Stack(
+            children: [
+              // Background Map
+              Positioned.fill(
+                child: SaaradhiMap(
+                  isOnline: rideProvider.isOnline,
+                  driverLocation: (status != RideStatus.idle && rideProvider.currentLat != null) 
+                      ? LatLng(rideProvider.currentLat!, rideProvider.currentLng!) 
+                      : null,
+                    ),
                   ),
 
                   // HUD (Heads Up Display) Overlay
@@ -70,23 +65,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         children: [
                           _buildTopHUD(context, user),
                           const SizedBox(height: 16),
-                          _buildEarningsCard(context, rideState),
+                  _buildEarningsCard(context, rideProvider),
                         ],
                       ),
                     ),
                   ),
 
                   // Bottom Action Panel
-                  _buildBottomPanel(context, rideState),
+                  _buildBottomPanel(context, rideProvider),
 
                   // Active Request Overlay
                   if (status == RideStatus.requested)
                     const RideRequestSheet(),
                 ],
               ),
+              ),
             );
-          },
-        );
       },
     );
   }
@@ -111,7 +105,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               borderRadius: BorderRadius.circular(100),
               border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
               boxShadow: [
-                if (_isOnline)
+                if (Provider.of<RideProvider>(context).isOnline)
                   BoxShadow(
                     color: AppTheme.successGreen.withValues(alpha: 0.2),
                     blurRadius: 20,
@@ -125,13 +119,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   width: 10,
                   height: 10,
                   decoration: BoxDecoration(
-                    color: _isOnline ? AppTheme.successGreen : Colors.white24,
+                    color: Provider.of<RideProvider>(context).isOnline ? AppTheme.successGreen : Colors.white24,
                     shape: BoxShape.circle,
                   ),
                 ),
                 const SizedBox(width: 10),
                 Text(
-                  (_isOnline ? "ONLINE" : "OFFLINE").toUpperCase(),
+                  (Provider.of<RideProvider>(context).isOnline ? "ONLINE" : "OFFLINE").toUpperCase(),
                   style: const TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w900,
@@ -154,7 +148,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildEarningsCard(BuildContext context, RideState rideState) {
+  Widget _buildEarningsCard(BuildContext context, RideProvider rideProvider) {
     return FadeInDown(
       delay: const Duration(milliseconds: 200),
       child: GlassCard(
@@ -163,11 +157,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Column(
+            const Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text(
+                Text(
                   "TODAY'S REVENUE",
                   style: TextStyle(
                     color: Colors.white38,
@@ -176,8 +170,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     letterSpacing: 1.5,
                   ),
                 ),
-                const SizedBox(height: 4),
-                const Text(
+                SizedBox(height: 4),
+                Text(
                   "₹1,250", // Fetch from real state in next step
                   style: TextStyle(
                     color: Colors.white,
@@ -207,7 +201,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildBottomPanel(BuildContext context, RideState rideState) {
+  Widget _buildBottomPanel(BuildContext context, RideProvider rideProvider) {
     return Positioned(
       left: 0,
       right: 0,
@@ -230,7 +224,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   Container(width: 50, height: 5, decoration: BoxDecoration(color: Colors.white12, borderRadius: BorderRadius.circular(10))),
                   const SizedBox(height: 32),
                   Text(
-                    _isOnline ? "Searching for rides..." : "Go online to start earnings",
+                    rideProvider.isOnline ? "Searching for rides..." : "Go online to start earnings",
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                       color: Colors.white,
@@ -242,8 +236,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   const SizedBox(height: 40),
                   DriverButton(
                     onPressed: _toggleOnline,
-                    backgroundColor: _isOnline ? Colors.white.withValues(alpha: 0.05) : AppTheme.successGreen,
-                    child: Text(_isOnline ? "GO OFFLINE" : "GO ONLINE NOW"),
+                    backgroundColor: rideProvider.isOnline ? Colors.white.withValues(alpha: 0.05) : AppTheme.successGreen,
+                    child: Text(rideProvider.isOnline ? "GO OFFLINE" : "GO ONLINE NOW"),
                   ),
                   const SizedBox(height: 32),
                   Row(

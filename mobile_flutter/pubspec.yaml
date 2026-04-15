@@ -1,4 +1,4 @@
-name: saaradhi_go_driver
+filename: saaradhi_go_driver
 description: A production-ready ride-hailing driver app for SaaradhiGO.
 version: 1.0.0+1
 publish_to: 'none'

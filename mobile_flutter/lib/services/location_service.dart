@@ -103,22 +103,39 @@ class LocationService {
   // ─── Native GPS (mobile only) ──────────────────────────────────────────────
   Future<void> _startNativeTracking() async {
     try {
-      // Dynamically import location only on non-web builds
-      // This avoids the "location not found" web compile error
-      // On native, this runs fine. On web, it never reaches here.
-      final locationLib = await _loadLocationLib();
-      if (locationLib == null) {
-        _startWebSimulation(); // fallback
+      if (kIsWeb) {
+        _startWebSimulation(); 
         return;
       }
+
+      final status = await Permission.locationAlways.status;
+      if (!status.isGranted && !(await Permission.locationWhenInUse.status).isGranted) {
+        debugPrint('[LocationService] Location permission denied. Fallback simulation.');
+        _startWebSimulation();
+        return;
+      }
+
+      _subscription = Geolocator.getPositionStream(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.bestForNavigation,
+          distanceFilter: 2, 
+        ),
+      ).listen((Position position) {
+        processNativeLocation(
+          position.latitude, 
+          position.longitude, 
+          isMocked: position.isMocked, 
+          accuracy: position.accuracy
+        );
+      }, onError: (e) {
+        debugPrint('[LocationService] Stream error: $e');
+      });
+      debugPrint('[LocationService] Native GPS stream started.');
     } catch (e) {
       debugPrint('[LocationService] Native GPS error: $e — falling back to simulation');
       _startWebSimulation();
     }
   }
-
-  // Stub — overridden in mobile entry point
-  Future<dynamic> _loadLocationLib() async => null;
 
   // ─── Web / Demo Simulation ─────────────────────────────────────────────────
   void _startWebSimulation() {

@@ -26,6 +26,12 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>SaaradhiGO needs location access to match you with ride requests and track trips.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>SaaradhiGO needs background location to continually update your position for ride tracking.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>SaaradhiGO tracks trips natively.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

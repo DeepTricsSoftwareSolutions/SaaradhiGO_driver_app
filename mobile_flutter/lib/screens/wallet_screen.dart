@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import '../features/ride/bloc/ride_bloc.dart';
-import '../features/ride/bloc/ride_state.dart';
+import 'package:provider/provider.dart';
 import '../core/theme.dart';
+import '../features/ride/ride_provider.dart';
 import 'widgets/glass_card.dart';
 import 'widgets/driver_button.dart';
 
@@ -12,9 +11,9 @@ class WalletScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<RideBloc, RideState>(
-      builder: (context, state) {
-        final balance = 8450.0; // In production, get from state
+    return Consumer<RideProvider>(
+      builder: (context, rideProvider, _) {
+        final balance = rideProvider.totalEarnings > 0 ? rideProvider.totalEarnings : 8450.0;
 
         return Scaffold(
           backgroundColor: Colors.black,

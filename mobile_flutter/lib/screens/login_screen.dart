@@ -83,7 +83,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         padding: const EdgeInsets.all(16),
                         child: Pulse(
                           infinite: true,
-                          child: Icon(
+                          child: const Icon(
                             Icons.directions_car_rounded,
                             color: AppTheme.primaryGold,
                             size: 56,
@@ -266,9 +266,9 @@ class _LoginScreenState extends State<LoginScreen> {
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                         ),
                         child: RichText(
-                          text: TextSpan(
+                          text: const TextSpan(
                             text: "Don't have an account? ",
-                            style: const TextStyle(color: Colors.white38, fontSize: 14),
+                            style: TextStyle(color: Colors.white38, fontSize: 14),
                             children: [
                               TextSpan(
                                 text: 'Register Now',

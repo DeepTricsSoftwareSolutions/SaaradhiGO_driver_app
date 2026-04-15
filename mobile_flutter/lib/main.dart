@@ -7,7 +7,6 @@ import 'features/auth/auth_provider.dart';
 import 'features/auth/bloc/auth_bloc.dart';
 import 'features/auth/bloc/auth_event.dart';
 import 'features/ride/ride_provider.dart';
-import 'features/ride/bloc/ride_bloc.dart';
 import 'screens/splash_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/dashboard_screen.dart';
@@ -48,7 +47,6 @@ void main() async {
     MultiBlocProvider(
       providers: [
         BlocProvider(create: (context) => AuthBloc()..add(AuthCheckSession())),
-        BlocProvider(create: (context) => RideBloc()),
       ],
       child: MultiProvider(
         providers: [

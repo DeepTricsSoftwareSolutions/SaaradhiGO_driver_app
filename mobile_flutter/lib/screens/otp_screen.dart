@@ -5,6 +5,8 @@ import 'package:animate_do/animate_do.dart';
 import '../features/auth/bloc/auth_bloc.dart';
 import '../features/auth/bloc/auth_event.dart';
 import '../features/auth/bloc/auth_state.dart';
+import 'package:provider/provider.dart';
+import '../features/auth/auth_provider.dart';
 import '../core/theme.dart';
 import 'widgets/driver_button.dart';
 
