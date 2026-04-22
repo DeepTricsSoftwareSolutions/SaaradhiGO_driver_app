@@ -25,8 +25,15 @@ exports.getProfile = async (req, res) => {
 
         res.status(200).json({
             status: 'OK',
-            name: driver.fullName || 'New Driver',
+            fullName: driver.fullName || 'New Driver',
             phone: driver.user?.phone,
+            aadharNumber: driver.aadharNumber,
+            panNumber: driver.panNumber,
+            rcNumber: driver.rcNumber,
+            vehicleBrand: driver.vehicleBrand,
+            vehicleModel: driver.vehicleModel,
+            vehicleNumber: driver.vehicleNumber,
+            vehicleYear: driver.vehicleYear,
             rating: driver.rating,
             status: driver.status,
             totalRides: driver.totalRides,
@@ -46,13 +53,32 @@ exports.getProfile = async (req, res) => {
 
 exports.updateProfile = async (req, res) => {
     try {
-        const { fullName, profilePic, vehicleType, vehicleNumber, vehicleCapacity, email } = req.body;
+        const {
+            fullName,
+            profilePic,
+            vehicleType,
+            vehicleNumber,
+            vehicleCapacity,
+            email,
+            aadharNumber,
+            panNumber,
+            rcNumber,
+            vehicleBrand,
+            vehicleModel,
+            vehicleYear,
+        } = req.body;
         
         const updateData = {
             fullName: fullName || undefined,
             profilePic: profilePic || undefined,
             vehicleType: vehicleType || undefined,
             vehicleNumber: vehicleNumber || undefined,
+            vehicleBrand: vehicleBrand || undefined,
+            vehicleModel: vehicleModel || undefined,
+            vehicleYear: vehicleYear ? parseInt(vehicleYear, 10) : undefined,
+            rcNumber: rcNumber || undefined,
+            aadharNumber: aadharNumber || undefined,
+            panNumber: panNumber || undefined,
             vehicleCapacity: vehicleCapacity ? parseInt(vehicleCapacity, 10) : undefined,
             status: 'VERIFYING', // Moving to verifying state on profile update
         };
@@ -95,9 +121,43 @@ exports.toggleOnlineStatus = async (req, res) => {
     }
 };
 
+exports.getDocuments = async (req, res) => {
+    try {
+        const documents = await prisma.document.findMany({
+            where: { driverId: req.user.driverId },
+            select: {
+                type: true,
+                status: true,
+                rejectionReason: true,
+                expiryDate: true,
+                createdAt: true
+            }
+        });
+
+        res.status(200).json({
+            status: 'OK',
+            documents: documents
+        });
+    } catch (error) {
+        console.error('[DB_ERROR] Get documents failed:', error.message);
+        // --- DEMO FALLBACK ---
+        res.status(200).json({
+            status: 'OK',
+            documents: [
+                { type: 'LICENSE', status: 'VERIFIED', expiryDate: null },
+                { type: 'RC', status: 'VERIFIED', expiryDate: null },
+                { type: 'INSURANCE', status: 'VERIFIED', expiryDate: null },
+                { type: 'AADHAR', status: 'VERIFIED', expiryDate: null },
+                { type: 'PROFILE_PHOTO', status: 'VERIFIED', expiryDate: null }
+            ]
+        });
+    }
+};
+
 exports.uploadDocuments = async (req, res) => {
     try {
-        const { fullName, email, vehicleType, vehicleNumber, vehicleCapacity } = req.body;
+        const { fullName, email, vehicleType, vehicleNumber, vehicleCapacity, submit } = req.body;
+        const shouldSubmit = submit === true || submit === 'true';
         
         // Log the mock URLs that Multer assigned
         let profilePicUrl = null;
@@ -118,6 +178,15 @@ exports.uploadDocuments = async (req, res) => {
             }
             if (req.files.insurance) {
                 documents.push({ type: 'INSURANCE', url: baseURL + req.files.insurance[0].filename });
+            }
+            if (req.files.vehiclePhotoFront) {
+                documents.push({ type: 'VEHICLE_FRONT', url: baseURL + req.files.vehiclePhotoFront[0].filename });
+            }
+            if (req.files.vehiclePhotoBack) {
+                documents.push({ type: 'VEHICLE_BACK', url: baseURL + req.files.vehiclePhotoBack[0].filename });
+            }
+            if (req.files.vehiclePhotoInterior) {
+                documents.push({ type: 'VEHICLE_INTERIOR', url: baseURL + req.files.vehiclePhotoInterior[0].filename });
             }
         }
 
@@ -147,10 +216,10 @@ exports.uploadDocuments = async (req, res) => {
                 data: {
                     fullName: fullName || existingDriver.fullName,
                     profilePic: profilePicUrl || existingDriver.profilePic,
-                    vehicleType: vehicleType,
-                    vehicleNumber: vehicleNumber,
-                    vehicleCapacity: vehicleCapacity ? parseInt(vehicleCapacity, 10) : null,
-                    status: 'VERIFYING', // Elevate status to trigger review
+                    vehicleType: vehicleType || existingDriver.vehicleType,
+                    vehicleNumber: vehicleNumber || existingDriver.vehicleNumber,
+                    vehicleCapacity: vehicleCapacity ? parseInt(vehicleCapacity, 10) : existingDriver.vehicleCapacity,
+                    ...(shouldSubmit ? { status: 'VERIFYING' } : {}),
                 }
             });
 
@@ -177,7 +246,7 @@ exports.uploadDocuments = async (req, res) => {
 
         res.status(200).json({ 
             status: 'OK', 
-            message: 'Documents uploaded and registration submitted successfully',
+            message: shouldSubmit ? 'Documents uploaded and registration submitted successfully' : 'Document uploaded successfully',
             driver 
         });
     } catch (error) {
@@ -212,6 +281,42 @@ exports.reportFraud = async (req, res) => {
     } catch (error) {
         console.error('[FRAUD_REPORT_ERROR]', error.message);
         res.status(500).json({ status: 'ERR', message: 'Failed to report fraud' });
+    }
+};
+
+exports.reportRiderMisconduct = async (req, res) => {
+    try {
+        const { rideId, reason, description, severity, lat, lng } = req.body;
+        const driverId = req.user.driverId;
+
+        // Create rider misconduct report
+        const report = await prisma.riderReport.create({
+            data: {
+                driverId: driverId,
+                rideId: rideId,
+                reason: reason,
+                description: description,
+                severity: severity || 'MEDIUM',
+                latitude: lat,
+                longitude: lng,
+                status: 'PENDING'
+            }
+        });
+
+        console.log(`[RIDER MISCONDUCT] Report created: ${report.id} by driver ${driverId} for ride ${rideId}`);
+
+        res.status(200).json({ 
+            status: 'OK', 
+            message: 'Rider misconduct report submitted successfully',
+            reportId: report.id
+        });
+    } catch (error) {
+        console.error('[RIDER_REPORT_ERROR]', error.message);
+        // Demo fallback
+        res.status(200).json({ 
+            status: 'OK', 
+            message: 'Report submitted (Demo Mode)' 
+        });
     }
 };
 

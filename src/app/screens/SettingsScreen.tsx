@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 import { motion } from "motion/react";
 import { ArrowLeft, User, Bell, Lock, HelpCircle, LogOut, ChevronRight } from "lucide-react";
 import { GlassCard } from "../components/GlassCard";
@@ -34,7 +34,7 @@ export function SettingsScreen() {
     {
       title: "Account",
       items: [
-        { icon: User, label: "Profile Settings", path: "/profile" },
+        { icon: User, label: "Edit Profile", path: "/profile" },
         { icon: Lock, label: "Privacy & Security", path: "/privacy" },
         { icon: Bell, label: "Notifications", path: "/notifications" },
       ],

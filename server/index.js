@@ -108,7 +108,17 @@ app.post('/api/v1/driver/documents', upload.any(), (req, res) => {
 });
 
 app.get('/api/v1/driver/profile', (req, res) => {
-    res.status(200).json({ status: 'OK', data: { fullName: 'Demo Driver', walletBalance: 1250 } });
+    res.status(200).json({ status: 'OK', data: { 
+        fullName: 'Demo Driver', 
+        aadharNumber: '123456789012',
+        panNumber: 'ABCDE1234F',
+        rcNumber: 'KA01AB1234',
+        vehicleBrand: 'Honda',
+        vehicleModel: 'Activa',
+        vehicleNumber: 'KA01AB1234',
+        vehicleYear: 2020,
+        walletBalance: 1250 
+    } });
 });
 
 app.patch('/api/v1/driver/status', (req, res) => {

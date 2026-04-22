@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 import { motion } from "motion/react";
 import { MapPin, Navigation, DollarSign, Clock } from "lucide-react";
 import { BottomSheet } from "../components/BottomSheet";

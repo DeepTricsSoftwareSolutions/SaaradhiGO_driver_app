@@ -35,6 +35,9 @@ enum DocumentType {
   INSURANCE    // Vehicle insurance
   AADHAR       // National ID
   PROFILE_PHOTO
+  VEHICLE_FRONT
+  VEHICLE_BACK
+  VEHICLE_INTERIOR
 }
 
 enum DocumentStatus {
@@ -92,6 +95,11 @@ model Driver {
   vehicleType     String?      @map("vehicle_type") // AUTO, SEDAN, SUV
   vehicleModel    String?      @map("vehicle_model")
   vehicleNumber   String?      @unique @map("vehicle_number")
+  aadharNumber    String?      @map("aadhar_number")
+  panNumber       String?      @map("pan_number")
+  rcNumber        String?      @map("rc_number")
+  vehicleBrand    String?      @map("vehicle_brand")
+  vehicleYear     Int?         @map("vehicle_year")
   vehicleColor    String?      @map("vehicle_color")
   vehicleCapacity Int?         @map("vehicle_capacity")
 

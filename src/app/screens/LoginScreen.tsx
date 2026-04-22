@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 import { motion } from "motion/react";
 import { Phone, ArrowRight } from "lucide-react";
 import { DriverButton } from "../components/DriverButton";
@@ -10,14 +10,14 @@ export function LoginScreen() {
   const navigate = useNavigate();
   const [phone, setPhone] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleContinue = async () => {
     if (phone.length === 10) {
       setIsLoading(true);
       setError("");
       try {
-        await apiClient.post("/auth/login", { phone });
-        // Store phone for OTP screen if needed, or just navigate
+        await apiClient.post("/auth/send-otp", { phone });
         localStorage.setItem("pendingPhone", phone);
         navigate("/otp");
       } catch (err: any) {

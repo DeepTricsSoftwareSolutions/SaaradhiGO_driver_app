@@ -34,6 +34,7 @@ This document provides steps to set up the SaaradhiGO Driver App and Backend for
     npx prisma migrate dev --name init
     npx prisma generate
     ```
+    *Note: After initial setup, run `npx prisma migrate dev --name add-driver-profile-fields` to add new profile fields (Aadhar, PAN, RC, vehicle details).*
 4.  **Start Server:**
     ```bash
     npm start

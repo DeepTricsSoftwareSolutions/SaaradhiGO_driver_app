@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 import { motion } from "motion/react";
 import { ArrowLeft } from "lucide-react";
 import { DriverButton } from "../components/DriverButton";
@@ -40,6 +40,8 @@ export function OTPScreen() {
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [resendLoading, setResendLoading] = useState(false);
+  const [infoMessage, setInfoMessage] = useState("");
 
   const handleVerify = async () => {
     const otpString = otp.join("");
@@ -48,15 +50,17 @@ export function OTPScreen() {
       setError("");
       try {
         const phone = localStorage.getItem("pendingPhone");
-        const res = await apiClient.post("/auth/verify", { phone, otp: otpString });
+        if (!phone) {
+          throw new Error("No phone number found. Please restart login.");
+        }
+
+        const res = await apiClient.post("/auth/verify-otp", { phone, otp: otpString });
         
-        // Save session
         localStorage.setItem("token", res.token);
         localStorage.setItem("driverId", res.user.driverId);
         localStorage.setItem("userStatus", res.user.status);
         localStorage.removeItem("pendingPhone");
 
-        // Navigate based on status
         if (res.user.status === "PENDING") {
           navigate("/onboarding");
         } else if (res.user.status === "VERIFYING") {
@@ -69,6 +73,30 @@ export function OTPScreen() {
       } finally {
         setIsLoading(false);
       }
+    }
+  };
+
+  const handleResend = async () => {
+    const phone = localStorage.getItem("pendingPhone");
+    if (!phone) {
+      setError("No phone number found. Please restart login.");
+      return;
+    }
+
+    setResendLoading(true);
+    setError("");
+    setInfoMessage("");
+    try {
+      const res = await apiClient.post("/auth/send-otp", { phone });
+      setInfoMessage("OTP resent successfully. Please check your phone.");
+      if (res.devOtp) {
+        console.log("DEV OTP:", res.devOtp);
+      }
+      setTimer(30);
+    } catch (err: any) {
+      setError(err.message || "Failed to resend OTP. Please try again.");
+    } finally {
+      setResendLoading(false);
     }
   };
 
@@ -123,11 +151,18 @@ export function OTPScreen() {
                   Resend code in <span className="text-[#D4AF37] font-semibold">{timer}s</span>
                 </p>
               ) : (
-                <button className="text-[#D4AF37] font-semibold text-sm hover:underline">
-                  Resend OTP
+                <button
+                  onClick={handleResend}
+                  disabled={resendLoading}
+                  className="text-[#D4AF37] font-semibold text-sm hover:underline disabled:text-white/40"
+                >
+                  {resendLoading ? "Resending..." : "Resend OTP"}
                 </button>
               )}
             </div>
+            {infoMessage && (
+              <p className="text-[#22C55E] text-sm mt-2">{infoMessage}</p>
+            )}
 
             {error && (
               <motion.p

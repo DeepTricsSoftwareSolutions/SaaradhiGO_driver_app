@@ -1,6 +1,6 @@
 import { motion } from "motion/react";
 import { ArrowLeft } from "lucide-react";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 import { DriverButton } from "../components/DriverButton";
 import { GlassCard } from "../components/GlassCard";
 import { StatusBadge } from "../components/StatusBadge";

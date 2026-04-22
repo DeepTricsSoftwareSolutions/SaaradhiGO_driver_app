@@ -1,33 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'core/theme.dart';
-import 'features/auth/auth_provider.dart';
-import 'features/auth/bloc/auth_bloc.dart';
-import 'features/auth/bloc/auth_event.dart';
-import 'features/ride/ride_provider.dart';
-import 'screens/splash_screen.dart';
-import 'screens/login_screen.dart';
-import 'screens/dashboard_screen.dart';
-import 'screens/otp_screen.dart';
-import 'screens/onboarding_screen.dart';
-import 'screens/verification_pending_screen.dart';
-import 'screens/earnings_screen.dart';
-import 'screens/active_trip_screen.dart';
-import 'screens/profile_screen.dart';
-import 'screens/wallet_screen.dart';
-import 'screens/about_screen.dart';
-import 'screens/register_screen.dart';
-import 'screens/ride_request_screen.dart';
-import 'screens/pickup_navigation_screen.dart';
-import 'screens/start_ride_screen.dart';
-import 'screens/live_trip_screen.dart';
-import 'screens/end_trip_screen.dart';
-import 'screens/chat_screen.dart';
+import 'package:saaradhi_go_driver/core/theme/theme.dart';
+import 'package:saaradhi_go_driver/features/auth/presentation/providers/auth_provider.dart';
+import 'package:saaradhi_go_driver/features/ride/presentation/providers/ride_provider.dart';
+import 'package:saaradhi_go_driver/features/onboarding/presentation/screens/splash_screen.dart';
+import 'package:saaradhi_go_driver/features/auth/presentation/screens/login_screen.dart';
+import 'package:saaradhi_go_driver/features/dashboard/presentation/screens/dashboard_screen.dart';
+import 'package:saaradhi_go_driver/features/auth/presentation/screens/otp_screen.dart';
+import 'package:saaradhi_go_driver/features/onboarding/presentation/screens/onboarding_screen.dart';
+import 'package:saaradhi_go_driver/features/onboarding/presentation/screens/verification_pending_screen.dart';
+import 'package:saaradhi_go_driver/features/profile/presentation/screens/earnings_screen.dart';
+import 'package:saaradhi_go_driver/features/ride/presentation/screens/active_trip_screen.dart';
+import 'package:saaradhi_go_driver/features/profile/presentation/screens/profile_screen.dart';
+import 'package:saaradhi_go_driver/features/profile/presentation/screens/wallet_screen.dart';
+import 'package:saaradhi_go_driver/features/profile/presentation/screens/about_screen.dart';
+import 'package:saaradhi_go_driver/features/profile/presentation/screens/edit_profile_screen.dart';
+import 'package:saaradhi_go_driver/features/profile/presentation/screens/document_management_screen.dart';
+import 'package:saaradhi_go_driver/features/profile/presentation/screens/vehicle_management_screen.dart';
+import 'package:saaradhi_go_driver/features/auth/presentation/screens/register_screen.dart';
+import 'package:saaradhi_go_driver/features/ride/presentation/screens/ride_request_screen.dart';
+import 'package:saaradhi_go_driver/features/ride/presentation/screens/pickup_navigation_screen.dart';
+import 'package:saaradhi_go_driver/features/ride/presentation/screens/start_ride_screen.dart';
+import 'package:saaradhi_go_driver/features/ride/presentation/screens/live_trip_screen.dart';
+import 'package:saaradhi_go_driver/features/ride/presentation/screens/end_trip_screen.dart';
+import 'package:saaradhi_go_driver/features/chat/presentation/screens/chat_screen.dart';
+import 'package:saaradhi_go_driver/core/services/push_notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Safely initialize FCM Push Notifications
+  await PushNotificationService().initialize();
 
   // Lock orientation to portrait only (mobile behaviour)
   await SystemChrome.setPreferredOrientations([
@@ -44,17 +48,12 @@ void main() async {
   );
 
   runApp(
-    MultiBlocProvider(
+    MultiProvider(
       providers: [
-        BlocProvider(create: (context) => AuthBloc()..add(AuthCheckSession())),
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => RideProvider()),
       ],
-      child: MultiProvider(
-        providers: [
-          ChangeNotifierProvider(create: (_) => AuthProvider()),
-          ChangeNotifierProvider(create: (_) => RideProvider()),
-        ],
-        child: const SaaradhiGoApp(),
-      ),
+      child: const SaaradhiGoApp(),
     ),
   );
 }
@@ -81,6 +80,9 @@ class SaaradhiGoApp extends StatelessWidget {
         '/verification': (context) => const VerificationPendingScreen(),
         '/earnings': (context) => const EarningsScreen(),
         '/profile': (context) => const ProfileScreen(),
+        '/edit-profile': (context) => const EditProfileScreen(),
+        '/documents': (context) => const DocumentManagementScreen(),
+        '/vehicle-management': (context) => const VehicleManagementScreen(),
         '/wallet': (context) => const WalletScreen(),
         '/about': (context) => const AboutScreen(),
         '/active-trip': (context) => const ActiveTripScreen(),
@@ -90,8 +92,10 @@ class SaaradhiGoApp extends StatelessWidget {
         '/live-trip': (context) => const LiveTripScreen(),
         '/end-trip': (context) => const EndTripScreen(),
         '/chat': (context) {
-          final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
-          return ChatScreen(riderId: args['riderId'], riderName: args['riderName']);
+          final args = ModalRoute.of(context)!.settings.arguments
+              as Map<String, dynamic>;
+          return ChatScreen(
+              riderId: args['riderId'], riderName: args['riderName']);
         },
       },
       onGenerateRoute: (settings) {
@@ -137,10 +141,13 @@ class _MobileViewport extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.black,
           borderRadius: BorderRadius.circular(screenWidth <= 430 ? 0 : 44),
-          border: Border.all(color: Colors.white12, width: screenWidth <= 430 ? 0 : 2),
+          border: Border.all(
+              color: Colors.white12, width: screenWidth <= 430 ? 0 : 2),
           boxShadow: [
             if (screenWidth > 430)
-              BoxShadow(color: AppTheme.primaryGold.withValues(alpha: 0.1), blurRadius: 100),
+              BoxShadow(
+                  color: AppTheme.primaryGold.withValues(alpha: 0.1),
+                  blurRadius: 100),
           ],
         ),
         child: ClipRRect(
@@ -148,11 +155,11 @@ class _MobileViewport extends StatelessWidget {
           child: MediaQuery(
             data: MediaQuery.of(context).copyWith(
               size: Size(mobileWidth, mobileHeight),
-              padding: screenWidth <= 430 
-                  ? MediaQuery.of(context).padding 
+              padding: screenWidth <= 430
+                  ? MediaQuery.of(context).padding
                   : const EdgeInsets.only(top: 44, bottom: 34),
-              viewPadding: screenWidth <= 430 
-                  ? MediaQuery.of(context).viewPadding 
+              viewPadding: screenWidth <= 430
+                  ? MediaQuery.of(context).viewPadding
                   : const EdgeInsets.only(top: 44, bottom: 34),
               viewInsets: MediaQuery.of(context).viewInsets,
               textScaler: TextScaler.noScaling,
@@ -207,4 +214,3 @@ class _AuthWrapperState extends State<AuthWrapper> {
     );
   }
 }
-

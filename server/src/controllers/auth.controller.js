@@ -96,10 +96,10 @@ exports.verifyOTP = async (req, res) => {
                     driver: { 
                         create: { 
                             fullName: 'Demo Driver',
-                            status: 'APPROVED', 
-                            walletBalance: 1250.00,
-                            totalRides: 156,
-                            isOnline: true
+                            status: 'PENDING', 
+                            walletBalance: 0.00,
+                            totalRides: 0,
+                            isOnline: false
                         } 
                     }
                 },

@@ -15,6 +15,10 @@ router.patch('/profile', authMiddleware, driverController.updateProfile);
 // @desc    Upload documents and register vehicle details
 router.post('/documents', authMiddleware, require('../middleware/upload.middleware').uploadMiddleware, driverController.uploadDocuments);
 
+// @route   GET api/v1/driver/documents
+// @desc    Get current driver documents status
+router.get('/documents', authMiddleware, driverController.getDocuments);
+
 // @route   PATCH api/v1/driver/status
 // @desc    Toggle Online/Offline status
 router.patch('/status', authMiddleware, driverController.toggleOnlineStatus);
@@ -22,6 +26,10 @@ router.patch('/status', authMiddleware, driverController.toggleOnlineStatus);
 // @route   POST api/v1/driver/fraud-report
 // @desc    Report driver fraud (e.g. mocked GPS)
 router.post('/fraud-report', authMiddleware, driverController.reportFraud);
+
+// @route   POST api/v1/driver/rider-report
+// @desc    Report rider misconduct or safety concerns
+router.post('/rider-report', authMiddleware, driverController.reportRiderMisconduct);
 
 // @route   PATCH api/v1/driver/break
 // @desc    Toggle Break Mode

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 import { motion } from "motion/react";
 import { ArrowLeft, AlertCircle, Phone, MapPin, Share2, Shield } from "lucide-react";
 import { GlassCard } from "../components/GlassCard";

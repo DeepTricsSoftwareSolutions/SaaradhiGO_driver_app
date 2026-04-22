@@ -235,6 +235,32 @@ CREATE TABLE payouts (
     updated_at          TIMESTAMP DEFAULT NOW()
 );
 
+-- ─── Rider Reports Table (FR-D23) ───────────────────────────────────────────
+
+CREATE TYPE rider_report_severity AS ENUM ('LOW', 'MEDIUM', 'HIGH', 'CRITICAL');
+CREATE TYPE rider_report_status AS ENUM ('PENDING', 'REVIEWED', 'RESOLVED', 'DISMISSED');
+
+CREATE TABLE rider_reports (
+    id               UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    driver_id        UUID NOT NULL REFERENCES drivers(id),
+    ride_id          UUID REFERENCES rides(id),
+    reason           VARCHAR(100) NOT NULL,  -- e.g., 'HARASSMENT', 'SAFETY_CONCERN', 'PAYMENT_ISSUE'
+    description      TEXT,
+    severity         rider_report_severity DEFAULT 'MEDIUM',
+    latitude         DECIMAL(10, 8),
+    longitude        DECIMAL(11, 8),
+    status           rider_report_status DEFAULT 'PENDING',
+    admin_notes      TEXT,
+    reviewed_by      UUID,  -- admin user id
+    reviewed_at      TIMESTAMP,
+    created_at       TIMESTAMP DEFAULT NOW(),
+    updated_at       TIMESTAMP DEFAULT NOW()
+);
+
+CREATE INDEX idx_rider_reports_driver_id ON rider_reports(driver_id);
+CREATE INDEX idx_rider_reports_ride_id ON rider_reports(ride_id);
+CREATE INDEX idx_rider_reports_status ON rider_reports(status);
+
 -- ─── Trigger: Update driver location GEOGRAPHY when lat/lng changes ────────
 
 CREATE OR REPLACE FUNCTION update_driver_location()

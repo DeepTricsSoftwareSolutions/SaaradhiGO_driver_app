@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 import { motion } from "motion/react";
 import { Camera, Check, FileText, CreditCard, Car, Loader2 } from "lucide-react";
 import { DriverButton } from "../components/DriverButton";
@@ -14,6 +14,15 @@ export function OnboardingScreen() {
     rc: false,
   });
   const [loading, setLoading] = useState<Record<string, boolean>>({});
+  const [details, setDetails] = useState({
+    fullName: "",
+    email: "",
+    vehicleType: "",
+    vehicleNumber: "",
+    vehicleCapacity: "",
+  });
+  const [submitError, setSubmitError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   const fileInputs = {
     aadhaar: useRef<HTMLInputElement>(null),
@@ -28,10 +37,15 @@ export function OnboardingScreen() {
     setLoading(prev => ({ ...prev, [docType]: true }));
     try {
       const formData = new FormData();
-      // Map frontend keys to backend field names
       const backendField = docType === 'license' ? 'license' : docType === 'rc' ? 'rc' : 'aadhaar';
       formData.append(backendField, file);
-      
+      formData.append('fullName', details.fullName);
+      formData.append('email', details.email);
+      formData.append('vehicleType', details.vehicleType);
+      formData.append('vehicleNumber', details.vehicleNumber);
+      formData.append('vehicleCapacity', details.vehicleCapacity);
+      formData.append('submit', 'false');
+
       await apiClient.post("/driver/documents", formData);
       setDocuments(prev => ({ ...prev, [docType]: true }));
     } catch (err) {
@@ -43,6 +57,48 @@ export function OnboardingScreen() {
   };
 
   const allDocsUploaded = Object.values(documents).every((doc) => doc);
+
+  const validateRegistrationDetails = () => {
+    const errors: Record<string, string> = {};
+    if (!details.fullName.trim()) errors.fullName = "Full name is required.";
+    if (!details.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(details.email)) errors.email = "Valid email is required.";
+    if (!details.vehicleType.trim()) errors.vehicleType = "Vehicle type is required.";
+    if (!details.vehicleNumber.trim()) errors.vehicleNumber = "Vehicle number is required.";
+    if (!details.vehicleCapacity.trim() || Number(details.vehicleCapacity) <= 0) errors.vehicleCapacity = "Capacity must be a positive number.";
+
+    setFieldErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleSubmit = async () => {
+    setSubmitError("");
+
+    if (!validateRegistrationDetails()) {
+      setSubmitError("Please complete all registration fields before submitting.");
+      return;
+    }
+
+    if (!allDocsUploaded) {
+      setSubmitError("Please upload all required documents before submission.");
+      return;
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append('fullName', details.fullName);
+      formData.append('email', details.email);
+      formData.append('vehicleType', details.vehicleType);
+      formData.append('vehicleNumber', details.vehicleNumber);
+      formData.append('vehicleCapacity', details.vehicleCapacity);
+      formData.append('submit', 'true');
+
+      await apiClient.post("/driver/documents", formData);
+      navigate("/verification");
+    } catch (err: any) {
+      console.error("Registration submit failed", err);
+      setSubmitError(err.message || "Unable to submit registration details.");
+    }
+  };
 
   const DocumentCard = ({ 
     icon: Icon, 
@@ -128,6 +184,73 @@ export function OnboardingScreen() {
         </div>
       </GlassCard>
 
+      {/* Registration Details */}
+      <GlassCard className="mb-8">
+        <div className="space-y-4">
+          <div>
+            <h2 className="text-white font-semibold text-xl mb-3">Your Details</h2>
+            <p className="text-[#94A3B8] text-sm">Add your profile and vehicle registration information.</p>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label className="text-[#94A3B8] text-sm mb-2 block">Full Name</label>
+              <input
+                value={details.fullName}
+                onChange={(e) => setDetails((prev) => ({ ...prev, fullName: e.target.value }))}
+                className="w-full rounded-2xl bg-[#0F1C2E]/50 border border-white/10 px-4 py-4 text-white focus:outline-none focus:border-[#D4AF37]"
+                placeholder="Driver name"
+              />
+              {fieldErrors.fullName && <p className="text-[#EF4444] text-xs mt-1">{fieldErrors.fullName}</p>}
+            </div>
+
+            <div>
+              <label className="text-[#94A3B8] text-sm mb-2 block">Email Address</label>
+              <input
+                value={details.email}
+                onChange={(e) => setDetails((prev) => ({ ...prev, email: e.target.value }))}
+                className="w-full rounded-2xl bg-[#0F1C2E]/50 border border-white/10 px-4 py-4 text-white focus:outline-none focus:border-[#D4AF37]"
+                placeholder="you@example.com"
+              />
+              {fieldErrors.email && <p className="text-[#EF4444] text-xs mt-1">{fieldErrors.email}</p>}
+            </div>
+
+            <div>
+              <label className="text-[#94A3B8] text-sm mb-2 block">Vehicle Type</label>
+              <input
+                value={details.vehicleType}
+                onChange={(e) => setDetails((prev) => ({ ...prev, vehicleType: e.target.value }))}
+                className="w-full rounded-2xl bg-[#0F1C2E]/50 border border-white/10 px-4 py-4 text-white focus:outline-none focus:border-[#D4AF37]"
+                placeholder="Sedan / Hatchback"
+              />
+              {fieldErrors.vehicleType && <p className="text-[#EF4444] text-xs mt-1">{fieldErrors.vehicleType}</p>}
+            </div>
+
+            <div>
+              <label className="text-[#94A3B8] text-sm mb-2 block">Vehicle Number</label>
+              <input
+                value={details.vehicleNumber}
+                onChange={(e) => setDetails((prev) => ({ ...prev, vehicleNumber: e.target.value }))}
+                className="w-full rounded-2xl bg-[#0F1C2E]/50 border border-white/10 px-4 py-4 text-white focus:outline-none focus:border-[#D4AF37]"
+                placeholder="KA 01 AB 1234"
+              />
+              {fieldErrors.vehicleNumber && <p className="text-[#EF4444] text-xs mt-1">{fieldErrors.vehicleNumber}</p>}
+            </div>
+
+            <div>
+              <label className="text-[#94A3B8] text-sm mb-2 block">Vehicle Capacity</label>
+              <input
+                value={details.vehicleCapacity}
+                onChange={(e) => setDetails((prev) => ({ ...prev, vehicleCapacity: e.target.value.replace(/\D/g, "") }))}
+                className="w-full rounded-2xl bg-[#0F1C2E]/50 border border-white/10 px-4 py-4 text-white focus:outline-none focus:border-[#D4AF37]"
+                placeholder="4"
+              />
+              {fieldErrors.vehicleCapacity && <p className="text-[#EF4444] text-xs mt-1">{fieldErrors.vehicleCapacity}</p>}
+            </div>
+          </div>
+        </div>
+      </GlassCard>
+
       {/* Documents */}
       <div className="space-y-4 mb-8">
         <DocumentCard
@@ -154,9 +277,19 @@ export function OnboardingScreen() {
       </div>
 
       {/* Submit Button */}
+      {submitError && (
+        <p className="text-[#EF4444] text-sm text-center mb-4">{submitError}</p>
+      )}
       <DriverButton
-        onClick={() => navigate("/verification")}
-        disabled={!allDocsUploaded}
+        onClick={handleSubmit}
+        disabled={
+          !allDocsUploaded ||
+          !details.fullName.trim() ||
+          !details.email.trim() ||
+          !details.vehicleType.trim() ||
+          !details.vehicleNumber.trim() ||
+          !details.vehicleCapacity.trim()
+        }
         className="w-full"
       >
         Submit for Verification

@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 import { motion } from "motion/react";
 import { ArrowLeft, Navigation, Phone, MessageCircle } from "lucide-react";
 import { MapView } from "../components/MapView";

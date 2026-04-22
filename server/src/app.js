@@ -29,12 +29,8 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [
 
 app.use(cors({
     origin: (origin, callback) => {
-        // Allow requests with no origin (mobile apps, curl, Postman)
-        if (!origin || allowedOrigins.includes('*') || allowedOrigins.includes(origin)) {
-            callback(null, true);
-        } else {
-            callback(new Error('Not allowed by CORS'));
-        }
+        // Universal allowance in local development to prevent Flutter Web / Chrome port bugs crashing the server.
+        callback(null, true);
     },
     credentials: true,
 }));

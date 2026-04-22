@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 import { motion } from "motion/react";
 import { CheckCircle, MapPin, Navigation, Clock, DollarSign } from "lucide-react";
 import { DriverButton } from "../components/DriverButton";

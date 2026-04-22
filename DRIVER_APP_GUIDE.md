@@ -257,7 +257,7 @@ Text Secondary: #94A3B8
 ### 1️⃣8️⃣ **Settings Screen** (`/settings`)
 - Profile card with verification badge
 - Sections:
-  - Account: Profile, Privacy, Notifications
+  - Account: Edit Profile (full name, Aadhar, PAN, vehicle details, RC number, photos), Privacy, Notifications
   - Support: Help Center
 - Log Out button (red)
 - App version

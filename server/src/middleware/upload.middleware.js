@@ -14,7 +14,10 @@ const ALLOWED_FIELDS = [
     { name: 'profilePhoto', maxCount: 1 },
     { name: 'license', maxCount: 1 },
     { name: 'rc', maxCount: 1 },
-    { name: 'insurance', maxCount: 1 }
+    { name: 'insurance', maxCount: 1 },
+    { name: 'vehiclePhotoFront', maxCount: 1 },
+    { name: 'vehiclePhotoBack', maxCount: 1 },
+    { name: 'vehiclePhotoInterior', maxCount: 1 }
 ];
 
 // Configure local disk storage as simulaton for S3

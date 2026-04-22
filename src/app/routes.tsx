@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router";
+import { createBrowserRouter } from "react-router-dom";
 import { SplashScreen } from "./screens/SplashScreen";
 import { LoginScreen } from "./screens/LoginScreen";
 import { OTPScreen } from "./screens/OTPScreen";
@@ -17,6 +17,7 @@ import { RatingsScreen } from "./screens/RatingsScreen";
 import { NotificationsScreen } from "./screens/NotificationsScreen";
 import { SafetyScreen } from "./screens/SafetyScreen";
 import { SettingsScreen } from "./screens/SettingsScreen";
+import { ProfileEditScreen } from "./screens/ProfileEditScreen";
 import { DesignSystemScreen } from "./screens/DesignSystemScreen";
 import { NavigationGuideScreen } from "./screens/NavigationGuideScreen";
 
@@ -96,6 +97,10 @@ export const router = createBrowserRouter([
   {
     path: "/settings",
     Component: SettingsScreen,
+  },
+  {
+    path: "/profile",
+    Component: ProfileEditScreen,
   },
   {
     path: "/design-system",

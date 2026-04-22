@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 import { motion } from "motion/react";
 import { ArrowLeft, Star, TrendingUp } from "lucide-react";
 import { GlassCard } from "../components/GlassCard";
