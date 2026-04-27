@@ -16,6 +16,9 @@ router.get('/active', authMiddleware, rideController.getActiveRide);
 // ── GET /api/rides/heatmap ────────────────────────────────────────────────
 router.get('/heatmap', authMiddleware, rideController.getHeatmap);
 
+// ── GET /api/rides/requests (demo: pending ride offers) ────────────────────
+router.get('/requests', authMiddleware, rideController.getDriverRequests);
+
 // ── POST /api/rides (create ride — for rider app or testing) ──────────────
 router.post('/', authMiddleware, rideController.createRide);
 
@@ -39,5 +42,8 @@ router.post('/:rideId/no-show', authMiddleware, rideController.noShowTrip);
 
 // ── POST /api/rides/:rideId/sos ───────────────────────────────────────────
 router.post('/:rideId/sos', authMiddleware, rideController.sosTrigger);
+
+// ── POST /api/rides/:rideId/rate ──────────────────────────────────────────
+router.post('/:rideId/rate', authMiddleware, rideController.rateTrip);
 
 module.exports = router;

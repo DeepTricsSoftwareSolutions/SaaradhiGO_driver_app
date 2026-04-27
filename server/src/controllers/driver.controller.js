@@ -35,7 +35,7 @@ exports.getProfile = async (req, res) => {
             vehicleNumber: driver.vehicleNumber,
             vehicleYear: driver.vehicleYear,
             rating: driver.rating,
-            status: driver.status,
+            driverStatus: driver.status,
             totalRides: driver.totalRides,
             walletBalance: driver.walletBalance,
             isOnline: driver.isOnline,

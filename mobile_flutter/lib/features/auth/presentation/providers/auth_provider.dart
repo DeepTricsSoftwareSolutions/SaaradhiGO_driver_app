@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:saaradhi_go_driver/core/network/api_client.dart';
 import 'package:saaradhi_go_driver/core/utils/constants.dart';
+import 'package:dio/dio.dart';
 
 /// Production AuthProvider — backward-compatible with all existing screens.
 /// - sendOTP() returns bool (as screens expect), devOtp stored internally
@@ -73,22 +74,37 @@ class AuthProvider extends ChangeNotifier {
     try {
       ApiClient().initialize();
       final response = await ApiClient().getProfile();
-      if (response.data['status'] == 'success') {
-        final profileData = response.data['data'];
-        final userData = profileData['user'] ?? {};
+      final data = response.data;
+      // Current Node backend returns:
+      // { status:'OK', fullName, driverStatus, rating, ... }
+      // Some deployments may return:
+      // { status:'success', data:{ user:{full_name}, status } }
+      if (data is Map && data['status'] != 'ERR') {
+        final resolvedFullName = (data['fullName'] ??
+                (data['data'] is Map
+                    ? (data['data']['user'] is Map
+                        ? data['data']['user']['full_name']
+                        : null)
+                    : null) ??
+                'Driver')
+            .toString();
+
+        final resolvedStatus = (data['driverStatus'] ??
+                (data['data'] is Map ? data['data']['status'] : null) ??
+                _user?['status'] ??
+                'PENDING')
+            .toString();
 
         _user = {
           ..._user ?? {},
-          'fullName': userData['full_name'] ?? 'Driver',
-          'status': profileData['status'] ?? 'PENDING',
-          'rating': profileData['ratings'],
+          'fullName': resolvedFullName,
+          'status': resolvedStatus,
+          'rating': data['rating'],
         };
+
         final prefs = await SharedPreferences.getInstance();
-        await prefs.setString(
-            'driver_status', profileData['status'] ?? 'PENDING');
-        if (userData['full_name'] != null) {
-          await prefs.setString('driver_name', userData['full_name']);
-        }
+        await prefs.setString('driver_status', resolvedStatus);
+        await prefs.setString('driver_name', resolvedFullName);
         notifyListeners();
       }
     } catch (_) {
@@ -108,22 +124,39 @@ class AuthProvider extends ChangeNotifier {
     _lastDevOtp = null;
 
     try {
-      final response = await ApiClient().sendOTP(phone);
-      final data = response.data;
+      final phoneE164 = _toE164(phone);
+      final response =
+          await ApiClient().requestOtp(phoneNumberE164: phoneE164, role: 'driver');
+      final res = response.data;
 
-      if (data['status'] == 'OK') {
-        _lastDevOtp = data['devOtp']?.toString();
+      if (res is Map && res['status'] == 'success') {
+        final data = (res['data'] is Map) ? (res['data'] as Map) : const {};
+        _lastDevOtp = data['otp']?.toString(); // may be omitted in production
+        _setLoading(false);
+        return true;
+      }
+
+      _lastError = _extractMessage(res) ?? 'Failed to send OTP';
+      _setLoading(false);
+      return false;
+    } catch (e) {
+      debugPrint('[AUTH] sendOTP failed: $e');
+      if (e is DioError) {
+        _lastError = ApiClient.extractError(e);
+      } else {
+        _lastError = 'Failed to send OTP. Please try again.';
+      }
+
+      if (AppConstants.allowDemoOtp) {
+        debugPrint(
+            '[AUTH] allowDemoOtp=true, falling back to DEMO OTP (123456).');
+        _lastDevOtp = "123456";
         _setLoading(false);
         return true;
       }
 
       _setLoading(false);
       return false;
-    } catch (e) {
-      debugPrint('[AUTH] Backend failed for sendOTP. Reverting to DEMO mode.');
-      _lastDevOtp = "123456";
-      _setLoading(false);
-      return true;
     }
   }
 
@@ -133,13 +166,19 @@ class AuthProvider extends ChangeNotifier {
     _lastError = null;
 
     try {
-      final response = await ApiClient().verifyOTP(phone, otp);
-      final data = response.data;
+      final phoneE164 = _toE164(phone);
+      final response =
+          await ApiClient().loginWithOtp(phoneNumberE164: phoneE164, otp: otp);
+      final res = response.data;
 
-      if (data['status'] == 'OK') {
+      if (res is Map && res['status'] == 'success') {
+        final data = (res['data'] is Map) ? (res['data'] as Map) : const {};
+        final user = (data['user'] is Map) ? Map<String, dynamic>.from(data['user']) : <String, dynamic>{};
+
         await _handleSuccessfulAuth(
-          token: data['token'],
-          userData: Map<String, dynamic>.from(data['user'] ?? {}),
+          token: (data['token'] ?? '').toString(),
+          refreshToken: data['refresh_token']?.toString(),
+          userData: user,
         );
         // Refresh with specific driver profile immediately after login
         await _refreshProfileSilently();
@@ -148,26 +187,35 @@ class AuthProvider extends ChangeNotifier {
         return true;
       }
 
+      _lastError = _extractMessage(res) ?? 'Invalid OTP';
       _setLoading(false);
       return false;
     } catch (e) {
-      if (otp == "123456") {
+      debugPrint('[AUTH] verifyOTP failed: $e');
+      if (e is DioException) {
+        _lastError = ApiClient.extractError(e);
+      } else {
+        _lastError = 'Verification failed. Please try again.';
+      }
+
+      if (AppConstants.allowDemoOtp && otp == "123456") {
         debugPrint(
-            '[AUTH] Backend API failed/missing. Fast-tracking verifyOTP in DEMO mode.');
+            '[AUTH] allowDemoOtp=true, fast-tracking verifyOTP in DEMO mode.');
         await _handleSuccessfulAuth(
           token: "simulated_jwt_token",
+          refreshToken: null,
           userData: {
             'id': 'u_d3m0',
             'driverId': 'd_d3m0',
-            'phone': phone,
-            'fullName': 'Demo Driver',
+            'phone_number': _toE164(phone),
+            'full_name': 'Demo Driver',
             'status': 'PENDING',
           },
         );
         _setLoading(false);
         return true;
       }
-      _lastError = 'Invalid OTP. Please check or use 123456 for demo.';
+
       _setLoading(false);
       return false;
     }
@@ -175,15 +223,17 @@ class AuthProvider extends ChangeNotifier {
 
   Future<void> _handleSuccessfulAuth({
     required String token,
+    required String? refreshToken,
     required Map<String, dynamic> userData,
   }) async {
     _token = token;
     _user = {
-      'id': userData['id'] ?? 'user-id',
-      'driverId': userData['driverId'] ?? 'driver-id',
-      'phone': userData['phone'],
-      'fullName': userData['fullName'] ?? 'Driver',
-      'status': userData['status'] ?? 'PENDING',
+      'id': (userData['id'] ?? 'user-id').toString(),
+      // driverId comes from `/driver/driver/profile/` and is refreshed post-login
+      'driverId': userData['driverId']?.toString(),
+      'phone': userData['phone_number']?.toString(),
+      'fullName': userData['full_name']?.toString() ?? 'Driver',
+      'status': userData['status']?.toString() ?? 'PENDING',
     };
 
     // Auto-trigger sync if we go through the Provider's internal login flow
@@ -192,6 +242,9 @@ class AuthProvider extends ChangeNotifier {
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(AppConstants.keyJwtToken, token);
+      if (refreshToken != null && refreshToken.isNotEmpty) {
+        await prefs.setString('refresh_token', refreshToken);
+      }
       await prefs.setString('driver_status', userData['status'] ?? 'PENDING');
       final uid = userData['id'];
       final did = userData['driverId'];
@@ -200,6 +253,23 @@ class AuthProvider extends ChangeNotifier {
     } catch (_) {}
 
     notifyListeners();
+  }
+
+  static String _toE164(String input) {
+    final v = input.trim();
+    if (v.startsWith('+')) return v;
+    // Current UI enforces 10-digit Indian numbers. If you change the UI later,
+    // update this mapping accordingly.
+    return '+91$v';
+  }
+
+  static String? _extractMessage(dynamic res) {
+    if (res is Map) {
+      if (res['message'] != null) return res['message'].toString();
+      final data = res['data'];
+      if (data is Map && data['message'] != null) return data['message'].toString();
+    }
+    return null;
   }
 
   Future<void> finalizeRegistrationSync() async {

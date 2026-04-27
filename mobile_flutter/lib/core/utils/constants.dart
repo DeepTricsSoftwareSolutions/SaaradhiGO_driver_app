@@ -4,10 +4,29 @@ class AppConstants {
 
   // ── Backend URLs ───────────────────────────────────────────────────────────
   /// REST API base URL (without trailing slash)
-  static const String apiUrl = 'http://127.0.0.1:8000/api/v1';
+  ///
+  /// Override at build/run time with:
+  /// - `--dart-define=API_URL=https://dev.api.saaradhigo.in`
+  /// - `--dart-define=API_URL=http://10.0.2.2:8000` (Android emulator -> host)
+  /// - `--dart-define=API_URL=http://<your-lan-ip>:8000` (physical device -> host)
+  static const String apiUrl = String.fromEnvironment(
+    'API_URL',
+    // Server mounts routes under /api and /api/v1. Default to /api.
+    defaultValue: 'https://dev.api.saaradhigo.in/api',
+  );
 
   /// WebSocket server URL
-  static const String wsUrl = 'ws://127.0.0.1:8000';
+  static const String wsUrl = String.fromEnvironment(
+    'WS_URL',
+    defaultValue: 'wss://dev.api.saaradhigo.in',
+  );
+
+  /// If true, auth will fall back to a demo OTP when backend is unreachable.
+  /// Keep this OFF when you want strict end-to-end backend testing.
+  static const bool allowDemoOtp = bool.fromEnvironment(
+    'ALLOW_DEMO_OTP',
+    defaultValue: false,
+  );
 
   // ── Timing ────────────────────────────────────────────────────────────────
   /// How long a ride request is visible before expiring (seconds)

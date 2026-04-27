@@ -76,38 +76,51 @@ class ApiClient {
   }
 
   // ── Auth ─────────────────────────────────────────────────────────────────
-  Future<Response> sendOTP(String phone) =>
-      _dio.post('/auth/send-otp', data: {'phone': phone});
+  Future<Response> requestOtp({
+    required String phoneNumberE164,
+    String role = 'driver',
+  }) =>
+      // IMPORTANT: do not prefix with "/" or Dio will drop the "/api" base path
+      _dio.post('auth/otp',
+          data: {'phone_number': phoneNumberE164, 'role': role});
 
-  Future<Response> verifyOTP(String phone, String otp) =>
-      _dio.post('/auth/verify-otp', data: {'phone': phone, 'otp': otp});
+  Future<Response> loginWithOtp({
+    required String phoneNumberE164,
+    required String otp,
+    String? deviceToken,
+  }) =>
+      _dio.post('auth/login', data: {
+        'phone_number': phoneNumberE164,
+        'otp': otp,
+        if (deviceToken != null && deviceToken.isNotEmpty)
+          'device_token': deviceToken,
+      });
 
   Future<Response> updateUserAuth(Map<String, dynamic> data) =>
-      _dio.patch('/auth/user/', data: data);
+      _dio.patch('auth/update', data: data);
 
   Future<Response> refreshToken(String refresh) =>
-      _dio.post('/auth/refresh/', data: {'refresh_token': refresh});
+      _dio.post('auth/refresh', data: {'refresh_token': refresh});
 
   // ── Driver ────────────────────────────────────────────────────────────────
-  Future<Response> getProfile() => _dio.get('/driver/profile/');
+  Future<Response> getProfile() => _dio.get('driver/profile');
 
   Future<Response> updateProfile(dynamic data) =>
-      _dio.patch('/driver/profile/', data: data);
+      _dio.patch('driver/profile', data: data);
 
-  Future<Response> getDocuments() => _dio.get('/driver/documents');
+  Future<Response> getDocuments() => _dio.get('driver/documents');
 
   Future<Response> reportRiderMisconduct(Map<String, dynamic> data) =>
-      _dio.post('/driver/rider-report', data: data);
+      _dio.post('driver/rider-report', data: data);
 
   Future<Response> toggleOnlineStatus(bool isOnline) =>
-      _dio.patch('/driver/status',
-          data: {'status': isOnline ? 'online' : 'offline'});
+      _dio.patch('driver/status', data: {'isOnline': isOnline});
 
   Future<Response> toggleBreakMode(bool isOnBreak) =>
-      _dio.patch('/driver/break', data: {'isOnBreak': isOnBreak});
+      _dio.patch('driver/break', data: {'isOnBreak': isOnBreak});
 
   Future<Response> uploadDocuments(FormData formData) =>
-      _dio.post('/driver/documents', data: formData);
+      _dio.post('driver/documents', data: formData);
 
   // ── Vehicles ──────────────────────────────────────────────────────────────
   Future<Response> getVehicles() => _dio.get('/driver/vehicles/');
@@ -122,84 +135,69 @@ class ApiClient {
       _dio.delete('/driver/vehicles/$id/delete/');
 
   // ── Rides & Trips ────────────────────────────────────────────────────────
-  Future<Response> getRideHistory() => _dio.get('/ride/ride-history/');
+  Future<Response> getRideHistory() => _dio.get('rides/history');
 
-  Future<Response> getDriverHistory() => _dio.get('/ride/driver-history/');
-
-  Future<Response> getTripDetails(String tripId) =>
-      _dio.get('/ride/trip/$tripId/');
-
-  Future<Response> getTripFullDetails(String tripId) =>
-      _dio.get('/ride/trip/$tripId/details/');
-
-  Future<Response> getActiveRide() => _dio.get('/ride/trip/active/');
-
-  Future<Response> getDriverRequests() => _dio.get('/ride/driver-requests/');
+  Future<Response> getActiveRide() => _dio.get('rides/active');
 
   Future<Response> acceptRide(String rideId) =>
-      _dio.post('/ride/accept/', data: {'trip_id': rideId});
+      _dio.post('rides/$rideId/accept');
 
-  Future<Response> rejectRide(String rideId) => _dio.post(
-      '/ride/trip/$rideId/reject/'); // Assuming reject stays trip/id for now unless told otherwise
+  Future<Response> rejectRide(String rideId) =>
+      _dio.post('rides/$rideId/reject');
 
   Future<Response> startRide(String rideId, String otp) =>
-      _dio.post('/ride/start/', data: {'trip_id': rideId, 'otp': otp});
+      _dio.post('rides/$rideId/start', data: {'otp': otp});
 
   Future<Response> completeRide(String rideId) =>
-      _dio.post('/ride/end/', data: {'trip_id': rideId});
+      _dio.post('rides/$rideId/complete');
 
   Future<Response> cancelRide(String rideId, String reason) =>
-      _dio.post('/ride/trip/$rideId/cancel/', data: {'reason': reason});
+      _dio.post('rides/$rideId/cancel', data: {'reason': reason});
 
   Future<Response> markNoShow(String rideId) =>
-      _dio.post('/ride/trip/$rideId/no-show/');
+      _dio.post('rides/$rideId/no-show');
 
-  Future<Response> triggerDriverSOS(double lat, double lng) =>
-      _dio.post('/driver/sos/', data: {'lat': lat, 'lng': lng});
+  Future<Response> triggerDriverSOSForRide(
+          String rideId, double lat, double lng) =>
+      _dio.post('rides/$rideId/sos', data: {'lat': lat, 'lng': lng});
 
-  Future<Response> getHeatmap() => _dio.get('/ride/heatmap/');
+  Future<Response> getHeatmap() => _dio.get('rides/heatmap');
 
-  Future<Response> rateTrip(int tripId, int score, String comments) =>
-      _dio.post('/ride/rate-trip/',
-          data: {'trip_id': tripId, 'score': score, 'comments': comments});
-
-  Future<Response> getRatings() => _dio.get('/ride/ratings/');
-
-  Future<Response> triggerSOSGlobal() =>
-      _dio.post('/driver/sos/'); // Global SOS endpoint
+  Future<Response> triggerSOSGlobal(double lat, double lng) =>
+      _dio.post('driver/sos', data: {'lat': lat, 'lng': lng});
 
   // ── Real-time Location ─────────────────────────────────────────────────────
   Future<Response> updateLocation(double lat, double lng) =>
-      _dio.post('/driver/location/update/', data: {'lat': lat, 'lng': lng});
+      _dio.post('driver/location/update', data: {'lat': lat, 'lng': lng});
 
   // ── Earnings ──────────────────────────────────────────────────────────────
-  Future<Response> getEarnings() => _dio.get('/driver/earnings/');
+  Future<Response> getEarnings() => _dio.get('earnings');
 
-  Future<Response> getEarningsSummary() =>
-      _dio.get('/driver/earnings/summary/');
+  // Backward-compatible alias used by some screens/widgets.
+  Future<Response> getEarningsSummary() => getEarnings();
 
   // ── Wallet / Payments ─────────────────────────────────────────────────────
-  Future<Response> getWalletBalance() =>
-      _dio.get('/rider/wallet/balance/'); // Rider/Driver share wallet usually
+  Future<Response> getWalletBalance() => _dio.get('wallet/balance');
 
-  Future<Response> createWalletOrder(double amount) => _dio
-      .post('/rider/wallet/create-order/', data: {'amount': amount.toString()});
-
-  Future<Response> verifyWalletPayment(
-          String orderId, String paymentId, String signature) =>
-      _dio.post('/rider/wallet/verify/', data: {
-        'razorpay_order_id': orderId,
-        'razorpay_payment_id': paymentId,
-        'razorpay_signature': signature
-      });
-
-  Future<Response> getTransactions() => _dio.get('/payments/history/');
+  Future<Response> getTransactions() => _dio.get('wallet/transactions');
 
   Future<Response> requestWithdrawal(double amount) =>
-      _dio.post('/payments/refund/', data: {'amount': amount.toString()});
+      _dio.post('wallet/withdraw', data: {'amount': amount});
 
   Future<Response> createFundAccount(Map<String, dynamic> data) =>
-      _dio.post('/wallet/create-fund-account', data: data);
+      _dio.post('wallet/create-fund-account', data: data);
+
+  // ── Legacy compatibility (older UI code) ──────────────────────────────────
+  Future<Response> triggerDriverSOS(double lat, double lng) =>
+      triggerSOSGlobal(lat, lng);
+
+  Future<Response> getDriverRequests() => _dio.get('rides/requests');
+
+  Future<Response> getDriverHistory() => getRideHistory();
+
+  Future<Response> rateTrip(int tripId, int score, String comments) =>
+      _dio.post('rides/$tripId/rate',
+          data: {'score': score, 'comments': comments});
 
   // ── Error Helper ──────────────────────────────────────────────────────────
   static String extractError(DioException e) {
