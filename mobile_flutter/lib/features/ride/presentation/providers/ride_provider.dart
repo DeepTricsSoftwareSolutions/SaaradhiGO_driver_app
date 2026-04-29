@@ -96,8 +96,7 @@ class RideProvider extends ChangeNotifier {
 
   // ─── Initialize Socket + Location ─────────────────────────────────────────
   void initSocket(String driverId, {String? token}) {
-    _socket.connect(
-      driverId: driverId,
+    _socket.setup(
       token: token,
       onRide: _handleNewRideRequest,
       onTripUpdate: _handleTripStatusUpdate,
@@ -144,9 +143,13 @@ class RideProvider extends ChangeNotifier {
   Future<void> _startLocationTracking() async {
     await _location.startTracking(
       onUpdate: (lat, lng) {
+        if (!_socket.isConnected) {
+          _socket.connectLocation(lat, lng);
+        } else {
+          _socket.updateLocation(lat, lng);
+        }
         _currentLat = lat;
         _currentLng = lng;
-        _socket.updateLocation(lat, lng);
         notifyListeners(); // Refresh map position
       },
       onSpoofing: (reason) {
@@ -191,10 +194,12 @@ class RideProvider extends ChangeNotifier {
           case 'REQUESTED':
           case 'ACCEPTED':
             _status = RideStatus.accepted;
+            _socket.connectTrip(activeRide['id'].toString());
             break;
           case 'OTP_VERIFIED':
           case 'STARTED':
             _status = RideStatus.inTrip;
+            _socket.connectTrip(activeRide['id'].toString());
             break;
           default:
             _currentRide = null;
@@ -270,7 +275,8 @@ class RideProvider extends ChangeNotifier {
       _incomingRequest = null;
       _status = RideStatus.idle;
       if (expiredRideId != null) {
-        _socket.emitRejectRide(expiredRideId); // Auto-reject expired
+        _socket.connectTrip(expiredRideId.toString());
+        _socket.emitRejectRide(); // Auto-reject expired
       }
       notifyListeners();
     }
@@ -304,13 +310,15 @@ class RideProvider extends ChangeNotifier {
     final rideId = _incomingRequest!['id'] as String;
 
     try {
-      await ApiClient().acceptRide(rideId);
-      _socket.emitAcceptRide(rideId);
+      _socket.connectTrip(rideId);
+      // Small delay to ensure websocket connection is established before emitting
+      await Future.delayed(const Duration(milliseconds: 500));
+      _socket.emitAcceptRide();
     } catch (e) {
-      debugPrint('[RideProvider] ❌ Accept API failed: $e');
+      debugPrint('[RideProvider] ❌ Accept failed: $e');
       _isLoading = false;
       notifyListeners();
-      return false; // Fail if backend doesn't acknowledge
+      return false; // Fail
     }
 
     _currentRide = _incomingRequest;
@@ -350,12 +358,10 @@ class RideProvider extends ChangeNotifier {
     }
 
     _rideRequestTimer?.cancel();
-    final rideId = _incomingRequest?['id'] as String?;
+    final rideId = _incomingRequest?['id']?.toString();
     if (rideId != null) {
-      _socket.emitRejectRide(rideId);
-      try {
-        await ApiClient().rejectRide(rideId);
-      } catch (_) {}
+      _socket.connectTrip(rideId);
+      _socket.emitRejectRide();
     }
     _incomingRequest = null;
     _status = RideStatus.idle;
@@ -414,11 +420,7 @@ class RideProvider extends ChangeNotifier {
     }
 
     _status = RideStatus.atPickup;
-    _socket.sendTripUpdate(
-      rideId: _currentRide!['id'],
-      status: 'ARRIVED',
-      riderId: _currentRide!['riderId'] ?? 'rider-id',
-    );
+    _socket.emitReachedPickup();
     notifyListeners();
     return true;
   }
@@ -441,20 +443,15 @@ class RideProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await ApiClient().startRide(_currentRide!['id'], enteredPin);
+      _socket.emitStartRide(enteredPin);
     } catch (e) {
-      debugPrint('[RideProvider] ❌ Start ride API failed: $e');
+      debugPrint('[RideProvider] ❌ Start ride failed: $e');
       _isLoading = false;
       notifyListeners();
       return false;
     }
 
     _status = RideStatus.inTrip;
-    _socket.sendTripUpdate(
-      rideId: _currentRide!['id'],
-      status: 'IN_PROGRESS',
-      riderId: _currentRide!['riderId'] ?? 'rider-id',
-    );
 
     // Now fetch route to Destination
     final dropLat = _currentRide!['dropLat'] as double;
@@ -487,18 +484,10 @@ class RideProvider extends ChangeNotifier {
     final fare = (_currentRide!['fare'] as num).toDouble();
 
     try {
-      await ApiClient().completeRide(_currentRide!['id']);
+      _socket.emitCompleteRide();
     } catch (e) {
-      debugPrint('[RideProvider] ❌ Complete ride API failed: $e');
-      // We log but proceed with local cleanup to not stick the UI,
-      // though in strict production you might want to retry.
+      debugPrint('[RideProvider] ❌ Complete ride failed: $e');
     }
-
-    _socket.sendTripUpdate(
-      rideId: _currentRide!['id'],
-      status: 'COMPLETED',
-      riderId: _currentRide!['riderId'] ?? 'rider-id',
-    );
 
     // Update local stats
     _totalRides++;
@@ -587,7 +576,7 @@ class RideProvider extends ChangeNotifier {
   Future<void> cancelActiveRide(String reason) async {
     if (_currentRide == null) return;
     try {
-      await ApiClient().cancelRide(_currentRide!['id'], reason);
+      _socket.emitCancelRide();
 
       _status = RideStatus.idle;
       _currentRide = null;

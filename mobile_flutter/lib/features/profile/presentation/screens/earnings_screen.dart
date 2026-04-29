@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:saaradhi_go_driver/core/theme/theme.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:saaradhi_go_driver/features/ride/presentation/providers/ride_provider.dart';
 import 'package:saaradhi_go_driver/core/widgets/glass_card.dart';
 
@@ -193,52 +194,69 @@ class _EarningsScreenState extends State<EarningsScreen> {
                       GlassCard(
                         padding: const EdgeInsets.all(24),
                         child: SizedBox(
-                          height: 150,
+                          height: 200,
                           child: Builder(
                             builder: (_) {
                               final weeklyValues = rideProvider.weeklyEarnings;
                               final days = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
-                              final maxValue = weeklyValues
-                                      .any((value) => value > 0)
+                              final maxValue = weeklyValues.any((value) => value > 0)
                                   ? weeklyValues.reduce((a, b) => a > b ? a : b)
-                                  : 1.0;
+                                  : 100.0;
 
-                              return Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: List.generate(7, (i) {
-                                  final normalizedHeight =
-                                      (weeklyValues[i] / maxValue)
-                                          .clamp(0.15, 1.0);
-                                  return Column(
-                                    mainAxisAlignment: MainAxisAlignment.end,
-                                    children: [
-                                      Container(
-                                        width: 20,
-                                        height: 110 * normalizedHeight,
-                                        decoration: BoxDecoration(
-                                          color: weeklyValues[i] == maxValue
-                                              ? AppTheme.primaryGold
-                                              : Colors.white10,
-                                          borderRadius:
-                                              BorderRadius.circular(6),
-                                        ),
+                              return BarChart(
+                                BarChartData(
+                                  alignment: BarChartAlignment.spaceAround,
+                                  maxY: maxValue * 1.2,
+                                  barTouchData: BarTouchData(
+                                    touchTooltipData: BarTouchTooltipData(
+                                      getTooltipColor: (_) => Colors.black.withValues(alpha: 0.8),
+                                      getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                                        return BarTooltipItem(
+                                          '₹${rod.toY.toInt()}',
+                                          const TextStyle(color: AppTheme.primaryGold, fontWeight: FontWeight.bold),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                  titlesData: FlTitlesData(
+                                    show: true,
+                                    bottomTitles: AxisTitles(
+                                      sideTitles: SideTitles(
+                                        showTitles: true,
+                                        getTitlesWidget: (value, meta) {
+                                          return Padding(
+                                            padding: const EdgeInsets.only(top: 8.0),
+                                            child: Text(
+                                              days[value.toInt()],
+                                              style: const TextStyle(color: Colors.white24, fontSize: 10, fontWeight: FontWeight.bold),
+                                            ),
+                                          );
+                                        },
+                                        reservedSize: 28,
                                       ),
-                                      const SizedBox(height: 12),
-                                      Text(days[i],
-                                          style: TextStyle(
-                                              color: weeklyValues[i] == maxValue
-                                                  ? Colors.white
-                                                  : Colors.white24,
-                                              fontSize: 10,
-                                              fontWeight: FontWeight.w900)),
-                                    ],
-                                  );
-                                }),
+                                    ),
+                                    leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                                    topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                                    rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                                  ),
+                                  gridData: const FlGridData(show: false),
+                                  borderData: FlBorderData(show: false),
+                                  barGroups: List.generate(7, (i) {
+                                    return BarChartGroupData(
+                                      x: i,
+                                      barRods: [
+                                        BarChartRodData(
+                                          toY: weeklyValues[i].toDouble(),
+                                          color: weeklyValues[i] == maxValue ? AppTheme.primaryGold : AppTheme.primaryGold.withValues(alpha: 0.3),
+                                          width: 16,
+                                          borderRadius: const BorderRadius.vertical(top: Radius.circular(6)),
+                                        ),
+                                      ],
+                                    );
+                                  }),
+                                ),
                               );
                             },
-                          ),
                         ),
                       ),
                     ],

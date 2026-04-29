@@ -165,7 +165,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       letterSpacing: 2,
                     ),
                   ),
-                  const SizedBox(width: 44),
+                  SizedBox(
+                    height: 32,
+                    child: Image.asset(
+                      'assets/images/logo.png',
+                      fit: BoxFit.contain,
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 24),

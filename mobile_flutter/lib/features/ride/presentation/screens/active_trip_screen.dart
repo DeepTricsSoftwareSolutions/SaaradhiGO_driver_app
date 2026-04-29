@@ -106,8 +106,13 @@ class _ActiveTripScreenState extends State<ActiveTripScreen> {
               ),
               const Spacer(),
               GestureDetector(
+                onTap: () => _showSOSDialog(context, Provider.of<RideProvider>(context, listen: false)),
+                child: const Icon(Icons.warning_amber_rounded, color: AppTheme.errorRed, size: 24),
+              ),
+              const SizedBox(width: 16),
+              GestureDetector(
                 onTap: () => Navigator.pop(context),
-                child: const Icon(Icons.close_rounded, color: Colors.white38, size: 20),
+                child: const Icon(Icons.close_rounded, color: Colors.white38, size: 24),
               ),
             ],
           ),
@@ -159,7 +164,18 @@ class _ActiveTripScreenState extends State<ActiveTripScreen> {
                       ),
                       _buildActionBtn(Icons.call_rounded, AppTheme.successGreen, () => _launchPhone(ride['riderPhone'])),
                       const SizedBox(width: 12),
-                      _buildActionBtn(Icons.chat_bubble_rounded, Colors.white, () {}), 
+                      _buildActionBtn(Icons.chat_bubble_rounded, Colors.white, () {
+                        Navigator.pushNamed(context, '/chat', arguments: {
+                          'riderId': ride['riderId'] ?? 'demo',
+                          'riderName': ride['riderName'] ?? 'Rider',
+                        });
+                      }), 
+                      const SizedBox(width: 12),
+                      _buildActionBtn(Icons.share_location, Colors.blueAccent, () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Live trip tracking link shared.', style: TextStyle(color: Colors.white)), backgroundColor: AppTheme.successGreen),
+                        );
+                      }),
                     ],
                   ),
 
@@ -322,6 +338,41 @@ class _ActiveTripScreenState extends State<ActiveTripScreen> {
   void _launchPhone(String? phone) async {
     final url = Uri.parse("tel:${phone ?? '9000000000'}");
     if (await canLaunchUrl(url)) await launchUrl(url);
+  }
+
+  void _showSOSDialog(BuildContext context, RideProvider provider) {
+    showDialog(
+      context: context,
+      builder: (ctx) => BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        child: AlertDialog(
+          backgroundColor: const Color(0xFF1A1A1A),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+          title: const Text("EMERGENCY SOS",
+              style: TextStyle(color: AppTheme.errorRed, fontWeight: FontWeight.w900)),
+          content: const Text(
+              "Triggering SOS will instantly alert the control hub and nearby emergency services. Proceed?",
+              style: TextStyle(color: Colors.white70)),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text("CANCEL", style: TextStyle(color: Colors.white24)),
+            ),
+            TextButton(
+              onPressed: () {
+                provider.triggerSOSGlobal();
+                Navigator.pop(ctx);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('SOS Alert Triggered!', style: TextStyle(color: Colors.white)), backgroundColor: AppTheme.errorRed),
+                );
+              },
+              child: const Text("CONFIRM SOS",
+                  style: TextStyle(color: AppTheme.errorRed, fontWeight: FontWeight.bold)),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 

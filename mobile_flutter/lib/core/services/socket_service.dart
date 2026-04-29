@@ -1,27 +1,25 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import 'package:socket_io_client/socket_io_client.dart' as io;
+import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:saaradhi_go_driver/core/utils/constants.dart';
 
-/// Production WebSocket service with:
-/// - Auto-reconnect with exponential backoff
-/// - Driver registration + room joining
-/// - Location broadcasting (every 3s)
-/// - Ride request/trip status handling
-/// - Connection state management
+/// Production WebSocket service based on Django Channels
+/// - Connects to Driver Location Consumer (polling, ride requests)
+/// - Connects to Trip Status Consumer (during active trip)
 class SocketService {
   static final SocketService _instance = SocketService._internal();
   factory SocketService() => _instance;
   SocketService._internal();
 
-  io.Socket? _socket;
-  String? _driverId;
-  Timer? _reconnectTimer;
-  int _reconnectAttempts = 0;
-  static const int _maxReconnectAttempts = 10;
+  WebSocketChannel? _locationChannel;
+  WebSocketChannel? _tripChannel;
 
-  bool _isConnected = false;
-  bool get isConnected => _isConnected;
+  String? _token;
+  bool _isLocationConnected = false;
+  bool _isTripConnected = false;
+
+  bool get isConnected => _isLocationConnected;
 
   // ── Callbacks ─────────────────────────────────────────────────────────────
   Function(Map<String, dynamic> rideData)? onRideRequest;
@@ -30,9 +28,8 @@ class SocketService {
   Function()? onDisconnected;
   Function(String error)? onError;
 
-  // ── Connect to Server ─────────────────────────────────────────────────────
-  void connect({
-    required String driverId,
+  // ── Setup ─────────────────────────────────────────────────────────────
+  void setup({
     String? token,
     Function(Map<String, dynamic>)? onRide,
     Function(Map<String, dynamic>)? onTripUpdate,
@@ -40,162 +37,176 @@ class SocketService {
     Function()? onDisconnect,
     Function(String)? onErr,
   }) {
-    _driverId = driverId;
+    _token = token;
     onRideRequest = onRide;
     onTripStatusUpdate = onTripUpdate;
     onConnected = onConnect;
     onDisconnected = onDisconnect;
     onError = onErr;
-
-    _initSocket(token: token);
   }
 
-  void _initSocket({String? token}) {
-    _socket?.disconnect();
-    _socket?.dispose();
+  // ── Connect Location Consumer ─────────────────────────────────────────────
+  void connectLocation(double lat, double lng) {
+    if (_token == null) return;
+    _disconnectLocation();
 
-    _socket = io.io(
-      AppConstants.wsUrl,
-      io.OptionBuilder()
-          .setTransports(['websocket'])
-          .disableAutoConnect()
-          .setAuth({'token': token ?? ''})
-          .setReconnectionDelay(1000)
-          .setReconnectionDelayMax(10000)
-          .setReconnectionAttempts(5)
-          .setTimeout(10000)
-          .build(),
-    );
+    final url = '${AppConstants.wsUrl}/ws/driver/location/?token=$_token&lat=$lat&lng=$lng';
+    debugPrint('[Socket] Connecting Location Consumer: $url');
 
-    // ── Event Listeners ───────────────────────────────────────────────────
-    _socket!.onConnect((_) {
-      _isConnected = true;
-      _reconnectAttempts = 0;
-      _reconnectTimer?.cancel();
-      debugPrint('[Socket] ✅ Connected: ${_socket?.id}');
+    try {
+      _locationChannel = WebSocketChannel.connect(Uri.parse(url));
+      _isLocationConnected = true;
 
-      // Register driver in server room
-      _socket!.emit('register_driver', _driverId);
-      onConnected?.call();
-    });
-
-    _socket!.onDisconnect((reason) {
-      _isConnected = false;
-      debugPrint('[Socket] ❌ Disconnected: $reason');
-      onDisconnected?.call();
-
-      // Auto-reconnect (unless intentional disconnect)
-      if (reason != 'io client disconnect') {
-        _scheduleReconnect();
-      }
-    });
-
-    _socket!.onConnectError((error) {
-      _isConnected = false;
-      debugPrint('[Socket] ⚠️ Connect error: $error');
-      onError?.call('Connection error: $error');
-      _scheduleReconnect();
-    });
-
-    _socket!.onError((error) {
-      debugPrint('[Socket] ⚠️ Error: $error');
-      onError?.call('Socket error: $error');
-    });
-
-    // ── Ride Request ──────────────────────────────────────────────────────
-    _socket!.on('new_ride_request', (data) {
-      debugPrint('[Socket] 🚗 New ride request: $data');
-      final rideData = Map<String, dynamic>.from(data ?? {});
-      onRideRequest?.call(rideData);
-    });
-
-    // ── Trip Status Updates ───────────────────────────────────────────────
-    _socket!.on('trip_status', (data) {
-      debugPrint('[Socket] 📋 Trip update: $data');
-      final tripData = Map<String, dynamic>.from(data ?? {});
-      onTripStatusUpdate?.call(tripData);
-    });
-
-    // ── Ride Cancelled by Rider ───────────────────────────────────────────
-    _socket!.on('ride_cancelled', (data) {
-      debugPrint('[Socket] ❌ Ride cancelled by rider: $data');
-      onTripStatusUpdate?.call({'status': 'CANCELLED', ...Map<String, dynamic>.from(data ?? {})});
-    });
-
-    _socket!.connect();
-  }
-
-  // ── Exponential Backoff Reconnect ─────────────────────────────────────────
-  void _scheduleReconnect() {
-    if (_reconnectAttempts >= _maxReconnectAttempts) {
-      debugPrint('[Socket] Max reconnect attempts reached');
-      return;
+      _locationChannel!.stream.listen(
+        (message) {
+          try {
+            final data = jsonDecode(message);
+            final type = data['type'];
+            
+            if (type == 'connection_established') {
+              debugPrint('[Socket] ✅ Location Connected: ${data['message']}');
+              onConnected?.call();
+            } else if (type == 'location_updated') {
+              // Server confirmed location update
+            } else if (type == 'ride_request') {
+              debugPrint('[Socket] 🚗 New ride request: $data');
+              // Map payload to local app expected structure if needed, or pass directly
+              // Document structure: trip_id, rider_name, pickup_lat, pickup_lng, destination_lat, destination_lng, pickup_address, destination_address, estimated_fare
+              onRideRequest?.call(data);
+            }
+          } catch (e) {
+            debugPrint('[Socket] Decode error: $e');
+          }
+        },
+        onDone: () {
+          debugPrint('[Socket] ❌ Location Disconnected');
+          _isLocationConnected = false;
+          onDisconnected?.call();
+        },
+        onError: (error) {
+          debugPrint('[Socket] ⚠️ Location Error: $error');
+          _isLocationConnected = false;
+          onError?.call('Location socket error: $error');
+        },
+      );
+    } catch (e) {
+      debugPrint('[Socket] ⚠️ Connection Error: $e');
+      _isLocationConnected = false;
+      onError?.call('Connection error: $e');
     }
+  }
 
-    final delay = Duration(
-      milliseconds: (1000 * (2 << _reconnectAttempts.clamp(0, 7))).clamp(1000, 30000),
-    );
-
-    debugPrint('[Socket] Reconnecting in ${delay.inSeconds}s (attempt ${_reconnectAttempts + 1})');
-    _reconnectTimer?.cancel();
-    _reconnectTimer = Timer(delay, () {
-      _reconnectAttempts++;
-      _initSocket();
-    });
+  void _disconnectLocation() {
+    _locationChannel?.sink.close();
+    _locationChannel = null;
+    _isLocationConnected = false;
   }
 
   // ── Send Location Update ─────────────────────────────────────────────────
   void updateLocation(double lat, double lng) {
-    if (!_isConnected || _driverId == null) return;
-
-    _socket!.emit('update_location', {
-      'driverId': _driverId,
+    if (!_isLocationConnected || _locationChannel == null) return;
+    
+    final payload = jsonEncode({
       'lat': lat,
       'lng': lng,
-      'timestamp': DateTime.now().millisecondsSinceEpoch,
     });
+    _locationChannel!.sink.add(payload);
   }
 
-  // ── Send Trip Status Update ───────────────────────────────────────────────
-  void sendTripUpdate({required String rideId, required String status, required String riderId}) {
-    if (!_isConnected) return;
+  // ── Connect Trip Status Consumer ──────────────────────────────────────────
+  void connectTrip(String tripId) {
+    if (_token == null) return;
+    _disconnectTrip();
 
-    _socket!.emit('trip_update', {
-      'rideId': rideId,
-      'status': status,
-      'riderId': riderId,
-      'driverId': _driverId,
-      'timestamp': DateTime.now().millisecondsSinceEpoch,
-    });
-    debugPrint('[Socket] 📤 Trip update sent: $rideId → $status');
+    final url = '${AppConstants.wsUrl}/ws/ride/trip/$tripId/?token=$_token';
+    debugPrint('[Socket] Connecting Trip Consumer: $url');
+
+    try {
+      _tripChannel = WebSocketChannel.connect(Uri.parse(url));
+      _isTripConnected = true;
+
+      _tripChannel!.stream.listen(
+        (message) {
+          try {
+            final data = jsonDecode(message);
+            final type = data['type'];
+            
+            if (type == 'connection_established') {
+              debugPrint('[Socket] ✅ Trip Connected: ${data['message']}');
+            } else if (type == 'trip_status_update') {
+              debugPrint('[Socket] 📋 Trip update: $data');
+              onTripStatusUpdate?.call(data);
+            }
+          } catch (e) {
+            debugPrint('[Socket] Trip Decode error: $e');
+          }
+        },
+        onDone: () {
+          debugPrint('[Socket] ❌ Trip Disconnected');
+          _isTripConnected = false;
+        },
+        onError: (error) {
+          debugPrint('[Socket] ⚠️ Trip Error: $error');
+          _isTripConnected = false;
+        },
+      );
+    } catch (e) {
+      debugPrint('[Socket] ⚠️ Trip Connection Error: $e');
+      _isTripConnected = false;
+    }
   }
 
-  // ── Accept Ride ───────────────────────────────────────────────────────────
-  void emitAcceptRide(String rideId) {
-    if (!_isConnected) return;
-    _socket!.emit('accept_ride', {'rideId': rideId, 'driverId': _driverId});
+  void _disconnectTrip() {
+    _tripChannel?.sink.close();
+    _tripChannel = null;
+    _isTripConnected = false;
   }
 
-  // ── Reject Ride ───────────────────────────────────────────────────────────
-  void emitRejectRide(String rideId) {
-    if (!_isConnected) return;
-    _socket!.emit('reject_ride', {'rideId': rideId, 'driverId': _driverId});
+  // ── Actions (TripStatusConsumer) ──────────────────────────────────────────
+  void _sendTripAction(Map<String, dynamic> payload) {
+    if (!_isTripConnected || _tripChannel == null) return;
+    _tripChannel!.sink.add(jsonEncode(payload));
+  }
+
+  void emitAcceptRide() {
+    _sendTripAction({'action': 'accept'});
+  }
+
+  void emitRejectRide() {
+    // In Django Channels docs, reject usually means ignoring it (timeout) 
+    // but we can send reject or cancel if the backend supports it.
+    _sendTripAction({'action': 'reject'});
+  }
+
+  void emitReachedPickup() {
+    _sendTripAction({'action': 'reached'});
+  }
+
+  void emitStartRide(String otp) {
+    _sendTripAction({'action': 'start', 'otp': otp});
+  }
+
+  void emitCompleteRide() {
+    _sendTripAction({'action': 'complete'});
+  }
+
+  void emitCancelRide() {
+    _sendTripAction({'action': 'cancel'});
   }
 
   // ── Driver Status ─────────────────────────────────────────────────────────
   void setDriverStatus(bool isOnline) {
-    if (!_isConnected) return;
-    _socket!.emit('driver_status', {'driverId': _driverId, 'isOnline': isOnline});
+    // Usually managed by connecting/disconnecting the Location Consumer
+    // If backend requires an explicit payload over location socket:
+    if (_isLocationConnected && _locationChannel != null) {
+      // _locationChannel!.sink.add(jsonEncode({'status': isOnline ? 'online' : 'offline'}));
+    }
   }
 
   // ── Disconnect ────────────────────────────────────────────────────────────
   void disconnect() {
-    _reconnectTimer?.cancel();
-    _socket?.emit('driver_offline', {'driverId': _driverId});
-    _socket?.disconnect();
-    _socket?.dispose();
-    _socket = null;
-    _isConnected = false;
+    _disconnectLocation();
+    _disconnectTrip();
     debugPrint('[Socket] Disconnected cleanly');
   }
 

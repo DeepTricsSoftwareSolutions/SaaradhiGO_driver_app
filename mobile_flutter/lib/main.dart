@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -26,12 +27,27 @@ import 'package:saaradhi_go_driver/features/ride/presentation/screens/live_trip_
 import 'package:saaradhi_go_driver/features/ride/presentation/screens/end_trip_screen.dart';
 import 'package:saaradhi_go_driver/features/chat/presentation/screens/chat_screen.dart';
 import 'package:saaradhi_go_driver/core/services/push_notification_service.dart';
+import 'package:saaradhi_go_driver/core/services/background_service.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:flutter/foundation.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Safely initialize FCM Push Notifications
   await PushNotificationService().initialize();
+
+  // Initialize Crashlytics
+  FlutterError.onError = (errorDetails) {
+    FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
+  };
+  PlatformDispatcher.instance.onError = (error, stack) {
+    FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+    return true;
+  };
+
+  // Initialize Background Location Service
+  await BackgroundLocationService().initializeService();
 
   // Lock orientation to portrait only (mobile behaviour)
   await SystemChrome.setPreferredOrientations([

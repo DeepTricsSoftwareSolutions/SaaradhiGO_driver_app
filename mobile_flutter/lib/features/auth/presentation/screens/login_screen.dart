@@ -81,10 +81,14 @@ class _LoginScreenState extends State<LoginScreen> {
                         padding: const EdgeInsets.all(16),
                         child: Pulse(
                           infinite: true,
-                          child: const Icon(
-                            Icons.directions_car_rounded,
-                            color: AppTheme.primaryGold,
-                            size: 56,
+                          child: Image.asset(
+                            'assets/images/logo.png',
+                            fit: BoxFit.contain,
+                            errorBuilder: (_, __, ___) => const Icon(
+                              Icons.directions_car_rounded,
+                              color: AppTheme.primaryGold,
+                              size: 56,
+                            ),
                           ),
                         ),
                       ),

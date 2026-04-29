@@ -74,8 +74,14 @@ class _VerificationPendingScreenState extends State<VerificationPendingScreen> {
                                   spreadRadius: 10),
                             ],
                           ),
-                          child: const Icon(Icons.hourglass_bottom,
-                              color: AppTheme.primaryGold, size: 60),
+                          child: Image.asset(
+                            'assets/images/logo.png',
+                            fit: BoxFit.contain,
+                            errorBuilder: (_, __, ___) => const Icon(
+                                Icons.hourglass_bottom,
+                                color: AppTheme.primaryGold,
+                                size: 60),
+                          ),
                         ),
                       ),
                     ),

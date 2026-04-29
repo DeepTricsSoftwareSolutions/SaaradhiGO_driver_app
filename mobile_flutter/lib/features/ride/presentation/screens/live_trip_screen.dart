@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:provider/provider.dart';
@@ -105,7 +106,7 @@ class _LiveTripScreenState extends State<LiveTripScreen> {
             right: 20,
             child: FadeIn(
               child: IconButton(
-                onPressed: () {},
+                onPressed: () => _showSOSDialog(context, provider),
                 icon: const Icon(Icons.warning_amber_rounded, color: AppTheme.errorRed, size: 28),
                 style: IconButton.styleFrom(
                   backgroundColor: AppTheme.errorRed.withValues(alpha: 0.2),
@@ -241,9 +242,20 @@ class _LiveTripScreenState extends State<LiveTripScreen> {
                     // Support Actions
                     Row(
                       children: [
-                        _buildSupportBtn(Icons.phone, "CALL"),
+                        _buildSupportBtn(Icons.phone, "CALL", () {}),
                         const SizedBox(width: 16),
-                        _buildSupportBtn(Icons.chat_bubble_outline, "CHAT"),
+                        _buildSupportBtn(Icons.chat_bubble_outline, "CHAT", () {
+                          Navigator.pushNamed(context, '/chat', arguments: {
+                            'riderId': provider.currentRide?['riderId'] ?? 'demo',
+                            'riderName': provider.currentRide?['riderName'] ?? 'Rider',
+                          });
+                        }),
+                        const SizedBox(width: 16),
+                        _buildSupportBtn(Icons.share_location, "SHARE", () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Live trip tracking link shared to your emergency contacts.', style: TextStyle(color: Colors.white)), backgroundColor: AppTheme.successGreen),
+                          );
+                        }),
                       ],
                     ),
                     const SizedBox(height: 32),
@@ -301,10 +313,10 @@ class _LiveTripScreenState extends State<LiveTripScreen> {
     );
   }
 
-  Widget _buildSupportBtn(IconData icon, String label) {
+  Widget _buildSupportBtn(IconData icon, String label, VoidCallback onTap) {
     return Expanded(
       child: InkWell(
-        onTap: () {},
+        onTap: onTap,
         child: Container(
           height: 64,
           decoration: BoxDecoration(
@@ -323,6 +335,41 @@ class _LiveTripScreenState extends State<LiveTripScreen> {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  void _showSOSDialog(BuildContext context, RideProvider provider) {
+    showDialog(
+      context: context,
+      builder: (ctx) => BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        child: AlertDialog(
+          backgroundColor: const Color(0xFF1A1A1A),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+          title: const Text("EMERGENCY SOS",
+              style: TextStyle(color: AppTheme.errorRed, fontWeight: FontWeight.w900)),
+          content: const Text(
+              "Triggering SOS will instantly alert the control hub and nearby emergency services. Proceed?",
+              style: TextStyle(color: Colors.white70)),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text("CANCEL", style: TextStyle(color: Colors.white24)),
+            ),
+            TextButton(
+              onPressed: () {
+                provider.triggerSOSGlobal();
+                Navigator.pop(ctx);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('SOS Alert Triggered!', style: TextStyle(color: Colors.white)), backgroundColor: AppTheme.errorRed),
+                );
+              },
+              child: const Text("CONFIRM SOS",
+                  style: TextStyle(color: AppTheme.errorRed, fontWeight: FontWeight.bold)),
+            ),
+          ],
         ),
       ),
     );

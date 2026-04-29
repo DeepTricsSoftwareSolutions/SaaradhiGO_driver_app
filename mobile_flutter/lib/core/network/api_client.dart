@@ -103,10 +103,10 @@ class ApiClient {
       _dio.post('auth/refresh', data: {'refresh_token': refresh});
 
   // ── Driver ────────────────────────────────────────────────────────────────
-  Future<Response> getProfile() => _dio.get('driver/profile');
+  Future<Response> getProfile() => _dio.get('/driver/driver/profile/');
 
   Future<Response> updateProfile(dynamic data) =>
-      _dio.patch('driver/profile', data: data);
+      _dio.patch('/driver/driver/update/', data: data);
 
   Future<Response> getDocuments() => _dio.get('driver/documents');
 
@@ -135,9 +135,9 @@ class ApiClient {
       _dio.delete('/driver/vehicles/$id/delete/');
 
   // ── Rides & Trips ────────────────────────────────────────────────────────
-  Future<Response> getRideHistory() => _dio.get('rides/history');
+  Future<Response> getRideHistory() => _dio.get('/ride/driver-history/');
 
-  Future<Response> getActiveRide() => _dio.get('rides/active');
+  Future<Response> getActiveRide() => _dio.get('/ride/active/');
 
   Future<Response> acceptRide(String rideId) =>
       _dio.post('rides/$rideId/accept');
@@ -171,18 +171,18 @@ class ApiClient {
       _dio.post('driver/location/update', data: {'lat': lat, 'lng': lng});
 
   // ── Earnings ──────────────────────────────────────────────────────────────
-  Future<Response> getEarnings() => _dio.get('earnings');
+  Future<Response> getEarnings() => _dio.get('/driver/earnings/');
 
   // Backward-compatible alias used by some screens/widgets.
-  Future<Response> getEarningsSummary() => getEarnings();
+  Future<Response> getEarningsSummary() => _dio.get('/driver/earnings/summary/');
 
   // ── Wallet / Payments ─────────────────────────────────────────────────────
-  Future<Response> getWalletBalance() => _dio.get('wallet/balance');
+  Future<Response> getWalletBalance() => _dio.get('/driver/withdrawals/balance/');
 
-  Future<Response> getTransactions() => _dio.get('wallet/transactions');
+  Future<Response> getTransactions() => _dio.get('/driver/withdrawals/history/');
 
   Future<Response> requestWithdrawal(double amount) =>
-      _dio.post('wallet/withdraw', data: {'amount': amount});
+      _dio.post('/driver/withdrawals/request/', data: {'amount': amount});
 
   Future<Response> createFundAccount(Map<String, dynamic> data) =>
       _dio.post('wallet/create-fund-account', data: data);
@@ -196,8 +196,8 @@ class ApiClient {
   Future<Response> getDriverHistory() => getRideHistory();
 
   Future<Response> rateTrip(int tripId, int score, String comments) =>
-      _dio.post('rides/$tripId/rate',
-          data: {'score': score, 'comments': comments});
+      _dio.post('/ride/rate-trip/',
+          data: {'trip_id': tripId, 'score': score, 'comments': comments});
 
   // ── Error Helper ──────────────────────────────────────────────────────────
   static String extractError(DioException e) {
