@@ -35,19 +35,21 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Safely initialize FCM Push Notifications
-  await PushNotificationService().initialize();
+  if (!kIsWeb) {
+    await PushNotificationService().initialize();
 
-  // Initialize Crashlytics
-  FlutterError.onError = (errorDetails) {
-    FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
-  };
-  PlatformDispatcher.instance.onError = (error, stack) {
-    FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
-    return true;
-  };
+    // Initialize Crashlytics
+    FlutterError.onError = (errorDetails) {
+      FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
+    };
+    PlatformDispatcher.instance.onError = (error, stack) {
+      FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+      return true;
+    };
 
-  // Initialize Background Location Service
-  await BackgroundLocationService().initializeService();
+    // Initialize Background Location Service
+    await BackgroundLocationService().initializeService();
+  }
 
   // Lock orientation to portrait only (mobile behaviour)
   await SystemChrome.setPreferredOrientations([

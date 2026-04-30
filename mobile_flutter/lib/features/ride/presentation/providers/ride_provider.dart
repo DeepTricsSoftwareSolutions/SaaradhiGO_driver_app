@@ -108,7 +108,7 @@ class RideProvider extends ChangeNotifier {
             // Emulate sending bulk offline queue to socket or API
             await ApiClient()
                 .dio
-                .post('/driver/location/bulk', data: {'locations': data});
+                .post('driver/location/bulk', data: {'locations': data});
           });
         }
         WidgetsBinding.instance.addPostFrameCallback((_) => notifyListeners());

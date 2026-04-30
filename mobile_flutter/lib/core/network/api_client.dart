@@ -81,7 +81,7 @@ class ApiClient {
     String role = 'driver',
   }) =>
       // IMPORTANT: do not prefix with "/" or Dio will drop the "/api" base path
-      _dio.post('auth/otp',
+      _dio.post('auth/otp/',
           data: {'phone_number': phoneNumberE164, 'role': role});
 
   Future<Response> loginWithOtp({
@@ -89,7 +89,7 @@ class ApiClient {
     required String otp,
     String? deviceToken,
   }) =>
-      _dio.post('auth/login', data: {
+      _dio.post('auth/login/', data: {
         'phone_number': phoneNumberE164,
         'otp': otp,
         if (deviceToken != null && deviceToken.isNotEmpty)
@@ -103,10 +103,10 @@ class ApiClient {
       _dio.post('auth/refresh', data: {'refresh_token': refresh});
 
   // ── Driver ────────────────────────────────────────────────────────────────
-  Future<Response> getProfile() => _dio.get('/driver/driver/profile/');
+  Future<Response> getProfile() => _dio.get('driver/profile/');
 
   Future<Response> updateProfile(dynamic data) =>
-      _dio.patch('/driver/driver/update/', data: data);
+      _dio.patch('driver/profile/', data: data);
 
   Future<Response> getDocuments() => _dio.get('driver/documents');
 
@@ -122,22 +122,22 @@ class ApiClient {
   Future<Response> uploadDocuments(FormData formData) =>
       _dio.post('driver/documents', data: formData);
 
-  // ── Vehicles ──────────────────────────────────────────────────────────────
-  Future<Response> getVehicles() => _dio.get('/driver/vehicles/');
+  // ── Vehicles (Handled via Profile in Node backend) ─────────────────────────
+  Future<Response> getVehicles() => _dio.get('driver/profile/');
 
   Future<Response> addVehicle(dynamic data) =>
-      _dio.post('/driver/vehicles/add/', data: data);
+      _dio.post('driver/profile/', data: data);
 
   Future<Response> updateVehicle(String id, Map<String, dynamic> data) =>
-      _dio.patch('/driver/vehicles/$id/', data: data);
+      _dio.patch('driver/profile/', data: data);
 
   Future<Response> deleteVehicle(String id) =>
-      _dio.delete('/driver/vehicles/$id/delete/');
+      _dio.delete('driver/vehicles/$id/delete/');
 
   // ── Rides & Trips ────────────────────────────────────────────────────────
-  Future<Response> getRideHistory() => _dio.get('/ride/driver-history/');
+  Future<Response> getRideHistory() => _dio.get('rides/history');
 
-  Future<Response> getActiveRide() => _dio.get('/ride/active/');
+  Future<Response> getActiveRide() => _dio.get('rides/active');
 
   Future<Response> acceptRide(String rideId) =>
       _dio.post('rides/$rideId/accept');
@@ -171,18 +171,18 @@ class ApiClient {
       _dio.post('driver/location/update', data: {'lat': lat, 'lng': lng});
 
   // ── Earnings ──────────────────────────────────────────────────────────────
-  Future<Response> getEarnings() => _dio.get('/driver/earnings/');
+  Future<Response> getEarnings() => _dio.get('earnings/');
 
-  // Backward-compatible alias used by some screens/widgets.
-  Future<Response> getEarningsSummary() => _dio.get('/driver/earnings/summary/');
+  // Backward-compatible alias
+  Future<Response> getEarningsSummary() => _dio.get('earnings/');
 
   // ── Wallet / Payments ─────────────────────────────────────────────────────
-  Future<Response> getWalletBalance() => _dio.get('/driver/withdrawals/balance/');
+  Future<Response> getWalletBalance() => _dio.get('wallet/balance');
 
-  Future<Response> getTransactions() => _dio.get('/driver/withdrawals/history/');
+  Future<Response> getTransactions() => _dio.get('wallet/transactions');
 
   Future<Response> requestWithdrawal(double amount) =>
-      _dio.post('/driver/withdrawals/request/', data: {'amount': amount});
+      _dio.post('wallet/withdraw', data: {'amount': amount});
 
   Future<Response> createFundAccount(Map<String, dynamic> data) =>
       _dio.post('wallet/create-fund-account', data: data);
@@ -195,9 +195,9 @@ class ApiClient {
 
   Future<Response> getDriverHistory() => getRideHistory();
 
-  Future<Response> rateTrip(int tripId, int score, String comments) =>
-      _dio.post('/ride/rate-trip/',
-          data: {'trip_id': tripId, 'score': score, 'comments': comments});
+  Future<Response> rateTrip(String rideId, int score, String comments) =>
+      _dio.post('rides/$rideId/rate',
+          data: {'score': score, 'comments': comments});
 
   // ── Error Helper ──────────────────────────────────────────────────────────
   static String extractError(DioException e) {

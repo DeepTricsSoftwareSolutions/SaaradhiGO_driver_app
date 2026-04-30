@@ -89,16 +89,16 @@ class _VerificationPendingScreenState extends State<VerificationPendingScreen> {
 
                     // Title
                     FadeInUp(
-                      child: const Text(
-                        "Verification Pending",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 32,
-                          fontWeight: FontWeight.w900,
-                          color: Colors.white,
-                          letterSpacing: -1,
-                        ),
+                    child: const Text(
+                      "Verification Pending",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 32,
+                        fontWeight: FontWeight.w900,
+                        color: AppTheme.primaryGold,
+                        letterSpacing: -1,
                       ),
+                    ),
                     ),
                     const SizedBox(height: 16),
 

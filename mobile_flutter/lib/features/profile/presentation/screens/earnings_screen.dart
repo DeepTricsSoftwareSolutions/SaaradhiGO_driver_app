@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:saaradhi_go_driver/core/theme/theme.dart';
@@ -45,12 +46,12 @@ class _EarningsScreenState extends State<EarningsScreen> {
                   color: Colors.white, size: 20),
               onPressed: () => Navigator.pop(context),
             ),
-            title: const Text(
+            title: Text(
               "DRIVER EARNINGS",
-              style: TextStyle(
+              style: GoogleFonts.outfit(
                 fontSize: 16,
                 fontWeight: FontWeight.w900,
-                color: Colors.white,
+                color: AppTheme.primaryGold,
                 letterSpacing: 2,
               ),
             ),
@@ -257,6 +258,7 @@ class _EarningsScreenState extends State<EarningsScreen> {
                                 ),
                               );
                             },
+                          ),
                         ),
                       ),
                     ],

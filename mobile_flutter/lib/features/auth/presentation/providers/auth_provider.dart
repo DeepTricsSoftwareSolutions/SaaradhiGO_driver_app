@@ -141,7 +141,7 @@ class AuthProvider extends ChangeNotifier {
       return false;
     } catch (e) {
       debugPrint('[AUTH] sendOTP failed: $e');
-      if (e is DioError) {
+      if (e is DioException) {
         _lastError = ApiClient.extractError(e);
       } else {
         _lastError = 'Failed to send OTP. Please try again.';

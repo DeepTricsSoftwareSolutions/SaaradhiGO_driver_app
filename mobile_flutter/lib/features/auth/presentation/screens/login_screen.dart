@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:saaradhi_go_driver/features/auth/presentation/providers/auth_provider.dart';
@@ -61,24 +62,24 @@ class _LoginScreenState extends State<LoginScreen> {
                   FadeInDown(
                     child: Center(
                       child: Container(
-                        width: 100,
-                        height: 100,
+                        width: 140,
+                        height: 140,
                         decoration: BoxDecoration(
-                          color: const Color(0xFF1A1A1A),
-                          borderRadius: BorderRadius.circular(30),
+                          color: const Color(0xFF0A0A0A),
+                          borderRadius: BorderRadius.circular(40),
                           border: Border.all(
-                            color: AppTheme.primaryGold.withValues(alpha: 0.3),
+                            color: AppTheme.primaryGold.withValues(alpha: 0.2),
                             width: 2,
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: AppTheme.primaryGold.withValues(alpha: 0.1),
-                              blurRadius: 40,
-                              spreadRadius: 5,
+                              color: AppTheme.primaryGold.withValues(alpha: 0.05),
+                              blurRadius: 50,
+                              spreadRadius: 10,
                             ),
                           ],
                         ),
-                        padding: const EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(24),
                         child: Pulse(
                           infinite: true,
                           child: Image.asset(
@@ -87,7 +88,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             errorBuilder: (_, __, ___) => const Icon(
                               Icons.directions_car_rounded,
                               color: AppTheme.primaryGold,
-                              size: 56,
+                              size: 72,
                             ),
                           ),
                         ),
@@ -100,23 +101,23 @@ class _LoginScreenState extends State<LoginScreen> {
                   // Title Section
                   FadeInUp(
                     delay: const Duration(milliseconds: 200),
-                    child: const Center(
+                    child: Center(
                       child: Column(
                         children: [
                           Text(
-                            'SaaradhiGO',
-                            style: TextStyle(
-                              fontSize: 36,
+                            'SAARADHI GO',
+                            style: GoogleFonts.outfit(
+                              fontSize: 42,
                               fontWeight: FontWeight.w900,
-                              color: Colors.white,
-                              letterSpacing: -1.5,
+                              color: AppTheme.primaryGold,
+                              letterSpacing: -1,
                             ),
                           ),
-                          SizedBox(height: 8),
-                          Text(
+                          const SizedBox(height: 4),
+                          const Text(
                             'DRIVE THE FUTURE',
                             style: TextStyle(
-                              color: AppTheme.primaryGold,
+                              color: Colors.white70,
                               fontSize: 12,
                               fontWeight: FontWeight.w900,
                               letterSpacing: 4,

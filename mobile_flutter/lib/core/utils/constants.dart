@@ -12,7 +12,7 @@ class AppConstants {
   static const String apiUrl = String.fromEnvironment(
     'API_URL',
     // Server mounts routes under /api and /api/v1. Default to /api.
-    defaultValue: 'https://dev.api.saaradhigo.in/api',
+    defaultValue: 'https://dev.api.saaradhigo.in/api/',
   );
 
   /// WebSocket server URL

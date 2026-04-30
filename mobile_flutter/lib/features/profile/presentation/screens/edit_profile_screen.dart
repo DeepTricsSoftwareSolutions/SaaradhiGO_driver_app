@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:dio/dio.dart';
 import 'package:image_picker/image_picker.dart';
@@ -256,12 +257,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               color: Colors.white, size: 20),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           "EDIT PROFILE",
-          style: TextStyle(
-              fontSize: 14,
+          style: GoogleFonts.outfit(
+              fontSize: 16,
               fontWeight: FontWeight.w900,
-              color: Colors.white,
+              color: AppTheme.primaryGold,
               letterSpacing: 2),
         ),
         centerTitle: true,
@@ -279,7 +280,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   const Text(
                     "PERSONAL DETAILS",
                     style: TextStyle(
-                        color: Colors.white38,
+                        color: AppTheme.primaryGold,
                         fontSize: 10,
                         fontWeight: FontWeight.w900,
                         letterSpacing: 2.5),
@@ -308,7 +309,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   const Text(
                     "VEHICLE DETAILS",
                     style: TextStyle(
-                        color: Colors.white38,
+                        color: AppTheme.primaryGold,
                         fontSize: 10,
                         fontWeight: FontWeight.w900,
                         letterSpacing: 2.5),
@@ -345,7 +346,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   const Text(
                     "PROFILE PHOTO",
                     style: TextStyle(
-                        color: Colors.white38,
+                        color: AppTheme.primaryGold,
                         fontSize: 10,
                         fontWeight: FontWeight.w900,
                         letterSpacing: 2.5),
@@ -367,7 +368,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   const Text(
                     "VEHICLE PHOTOS",
                     style: TextStyle(
-                        color: Colors.white38,
+                        color: AppTheme.primaryGold,
                         fontSize: 10,
                         fontWeight: FontWeight.w900,
                         letterSpacing: 2.5),

@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
-  static const Color primaryGold = Color(0xFFD4AF37); // Gold Accent
-  static const Color backgroundBlack = Color(0xFF000000); // Navy Primary
-  static const Color surfaceDark = Color(0xFF121212); // Navy Secondary
-  static const Color textPrimary = Color(0xFFFFFFFF); // Text Primary
-  static const Color textSecondary = Color(0xFF94A3B8); // Text Secondary
+  static const Color primaryGold = Color(0xFFFFD700); // Vibrant Gold
+  static const Color backgroundBlack = Color(0xFF000000); // Pitch Black
+  static const Color surfaceDark = Color(0xFF0A0A0A); // Very Dark Gray for cards
+  static const Color textPrimary = Color(0xFFFFD700); // Gold Text by default
+  static const Color textSecondary = Color(0xFFFFFFFF); // White for secondary
+  static const Color textMuted = Color(0xFF94A3B8); // Muted text
   static const Color successGreen = Color(0xFF22C55E); // Success
   static const Color errorRed = Color(0xFFEF4444); // Error
 
@@ -21,35 +22,36 @@ class AppTheme {
       surface: surfaceDark,
       error: errorRed,
       onPrimary: Colors.black,
-      onSurface: textPrimary,
+      onSurface: textSecondary,
+      onSecondary: Colors.black,
     ),
     textTheme: GoogleFonts.outfitTextTheme(
       const TextTheme(
         headlineLarge: TextStyle(
           fontSize: 32,
           fontWeight: FontWeight.w900,
-          color: textPrimary,
+          color: primaryGold,
           letterSpacing: -1,
         ),
         headlineMedium: TextStyle(
           fontSize: 24,
           fontWeight: FontWeight.w800,
-          color: textPrimary,
+          color: primaryGold,
           letterSpacing: -0.5,
         ),
         titleLarge: TextStyle(
           fontSize: 20,
           fontWeight: FontWeight.w700,
-          color: textPrimary,
+          color: primaryGold,
         ),
         bodyLarge: TextStyle(
           fontSize: 16,
-          color: textPrimary,
+          color: textSecondary,
           fontWeight: FontWeight.w500,
         ),
         bodyMedium: TextStyle(
           fontSize: 14,
-          color: textSecondary,
+          color: textMuted,
           fontWeight: FontWeight.w400,
         ),
       ),
@@ -58,11 +60,11 @@ class AppTheme {
       backgroundColor: backgroundBlack,
       elevation: 0,
       centerTitle: false,
-      iconTheme: IconThemeData(color: textPrimary),
+      iconTheme: IconThemeData(color: primaryGold),
       titleTextStyle: TextStyle(
         fontSize: 20,
         fontWeight: FontWeight.bold,
-        color: textPrimary,
+        color: primaryGold,
       ),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
@@ -94,7 +96,8 @@ class AppTheme {
         borderRadius: BorderRadius.circular(16),
         borderSide: const BorderSide(color: primaryGold, width: 2),
       ),
-      hintStyle: const TextStyle(color: textSecondary),
+      hintStyle: const TextStyle(color: textMuted),
+      labelStyle: const TextStyle(color: primaryGold),
     ),
     cardTheme: const CardThemeData(
       color: surfaceDark,

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:provider/provider.dart';
 import 'package:saaradhi_go_driver/features/auth/presentation/providers/auth_provider.dart';
@@ -115,12 +116,12 @@ class _OtpScreenState extends State<OtpScreen> {
               children: [
                 const SizedBox(height: 20),
                 FadeInUp(
-                  child: const Text(
-                    'Verify Phone',
-                    style: TextStyle(
+                  child: Text(
+                    'VERIFY PHONE',
+                    style: GoogleFonts.outfit(
                       fontSize: 32,
                       fontWeight: FontWeight.w900,
-                      color: Colors.white,
+                      color: AppTheme.primaryGold,
                       letterSpacing: -1,
                     ),
                   ),
@@ -131,12 +132,12 @@ class _OtpScreenState extends State<OtpScreen> {
                   child: RichText(
                     text: TextSpan(
                       text: 'Enter the 6-digit code sent to ',
-                      style: const TextStyle(color: Colors.white38, fontSize: 15),
+                      style: const TextStyle(color: Colors.white70, fontSize: 15),
                       children: [
                         TextSpan(
                           text: widget.phone,
                           style: const TextStyle(
-                            color: Colors.white,
+                            color: AppTheme.primaryGold,
                             fontWeight: FontWeight.w900,
                           ),
                         ),
@@ -156,19 +157,19 @@ class _OtpScreenState extends State<OtpScreen> {
                         width: 50,
                         height: 65,
                         decoration: BoxDecoration(
-                          color: const Color(0xFF111111),
+                          color: const Color(0xFF0A0A0A),
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
                             color: _controllers[index].text.isNotEmpty
-                                ? AppTheme.primaryGold.withValues(alpha: 0.5)
-                                : Colors.white.withValues(alpha: 0.1),
+                                ? AppTheme.primaryGold
+                                : Colors.white.withValues(alpha: 0.05),
                             width: 2,
                           ),
                           boxShadow: [
                             if (_controllers[index].text.isNotEmpty)
                               BoxShadow(
                                 color: AppTheme.primaryGold.withValues(alpha: 0.1),
-                                blurRadius: 15,
+                                blurRadius: 20,
                               ),
                           ],
                         ),

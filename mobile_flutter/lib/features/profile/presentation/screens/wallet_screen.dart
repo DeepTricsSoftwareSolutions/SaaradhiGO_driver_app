@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:provider/provider.dart';
 import 'package:saaradhi_go_driver/core/theme/theme.dart';
@@ -41,9 +42,13 @@ class _WalletScreenState extends State<WalletScreen> {
               icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 20),
               onPressed: () => Navigator.pop(context),
             ),
-            title: const Text(
+            title: Text(
               "WALLET",
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: 2),
+              style: GoogleFonts.outfit(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w900,
+                  color: AppTheme.primaryGold,
+                  letterSpacing: 2),
             ),
             centerTitle: true,
           ),
@@ -79,7 +84,7 @@ class _WalletScreenState extends State<WalletScreen> {
                         const SizedBox(height: 12),
                         Text(
                           "₹${balance.toInt()}",
-                          style: const TextStyle(color: Colors.white, fontSize: 52, fontWeight: FontWeight.w900, letterSpacing: -1),
+                          style: const TextStyle(color: AppTheme.primaryGold, fontSize: 52, fontWeight: FontWeight.w900, letterSpacing: -1),
                         ),
                         const SizedBox(height: 32),
                         DriverButton(

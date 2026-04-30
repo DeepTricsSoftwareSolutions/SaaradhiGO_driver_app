@@ -227,7 +227,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 style: TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.w900,
-                    color: Colors.white)),
+                    color: AppTheme.primaryGold)),
             const SizedBox(height: 8),
             const Text("Upload a clear photo and your details",
                 style: TextStyle(fontSize: 16, color: Colors.white70)),
@@ -310,7 +310,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 style: TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.w900,
-                    color: Colors.white)),
+                    color: AppTheme.primaryGold)),
             const SizedBox(height: 8),
             const Text("Details of the vehicle you'll drive",
                 style: TextStyle(fontSize: 16, color: Colors.white70)),
@@ -373,7 +373,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 style: TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.w900,
-                    color: Colors.white)),
+                    color: AppTheme.primaryGold)),
             const SizedBox(height: 8),
             const Text("Upload clear photos of your documents",
                 style: TextStyle(fontSize: 16, color: Colors.white70)),

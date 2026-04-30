@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:dio/dio.dart';
@@ -198,9 +199,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
+                        Text(
                           'Driver Registration',
-                          style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w900),
+                          style: GoogleFonts.outfit(
+                              color: AppTheme.primaryGold,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w900),
                         ),
                         Text(
                           'Step ${_currentPage + 1} of 3',
@@ -260,9 +264,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           FadeInUp(
-            child: const Text(
+            child: Text(
               'Personal Details',
-              style: TextStyle(fontSize: 26, fontWeight: FontWeight.w900, color: Colors.white),
+              style: GoogleFonts.outfit(
+                  fontSize: 26,
+                  fontWeight: FontWeight.w900,
+                  color: AppTheme.primaryGold),
             ),
           ),
           const SizedBox(height: 4),
@@ -332,9 +339,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           FadeInUp(
-            child: const Text(
+            child: Text(
               'Vehicle Details',
-              style: TextStyle(fontSize: 26, fontWeight: FontWeight.w900, color: Colors.white),
+              style: GoogleFonts.outfit(
+                  fontSize: 26,
+                  fontWeight: FontWeight.w900,
+                  color: AppTheme.primaryGold),
             ),
           ),
           const SizedBox(height: 4),
@@ -400,9 +410,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           FadeInUp(
-            child: const Text(
+            child: Text(
               'Upload Documents',
-              style: TextStyle(fontSize: 26, fontWeight: FontWeight.w900, color: Colors.white),
+              style: GoogleFonts.outfit(
+                  fontSize: 26,
+                  fontWeight: FontWeight.w900,
+                  color: AppTheme.primaryGold),
             ),
           ),
           const SizedBox(height: 4),

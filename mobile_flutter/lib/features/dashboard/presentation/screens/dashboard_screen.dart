@@ -336,8 +336,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         ? "Searching for rides..."
                         : "Go online to start earnings",
                     textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: rideProvider.isOnline ? AppTheme.primaryGold : Colors.white,
                       fontSize: 22,
                       fontWeight: FontWeight.w900,
                       letterSpacing: -0.5,

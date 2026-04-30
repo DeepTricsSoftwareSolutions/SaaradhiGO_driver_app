@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:saaradhi_go_driver/features/auth/presentation/providers/auth_provider.dart';
@@ -31,12 +32,12 @@ class ProfileScreen extends StatelessWidget {
                   color: Colors.white, size: 20),
               onPressed: () => Navigator.pop(context),
             ),
-            title: const Text(
-              "PROFILE",
-              style: TextStyle(
-                  fontSize: 14,
+            title: Text(
+              "MY PROFILE",
+              style: GoogleFonts.outfit(
+                  fontSize: 16,
                   fontWeight: FontWeight.w900,
-                  color: Colors.white,
+                  color: AppTheme.primaryGold,
                   letterSpacing: 2),
             ),
             centerTitle: true,
@@ -79,7 +80,7 @@ class ProfileScreen extends StatelessWidget {
                         Text(
                           name,
                           style: const TextStyle(
-                              color: Colors.white,
+                              color: AppTheme.primaryGold,
                               fontSize: 28,
                               fontWeight: FontWeight.w900,
                               letterSpacing: -0.5),
@@ -88,7 +89,7 @@ class ProfileScreen extends StatelessWidget {
                         const Text(
                           "ELITE DRIVER • HYDERABAD",
                           style: TextStyle(
-                              color: AppTheme.primaryGold,
+                              color: Colors.white70,
                               fontSize: 10,
                               fontWeight: FontWeight.w900,
                               letterSpacing: 2),
@@ -125,7 +126,7 @@ class ProfileScreen extends StatelessWidget {
                       const Text(
                         "MANAGEMENT",
                         style: TextStyle(
-                            color: Colors.white38,
+                            color: AppTheme.primaryGold,
                             fontSize: 10,
                             fontWeight: FontWeight.w900,
                             letterSpacing: 2.5),
